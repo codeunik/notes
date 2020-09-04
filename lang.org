@@ -1,0 +1,67 @@
+ßüä
+* German
+** Phrases
+   - hallo = hello
+   - ja = yes
+   - nein = no
+   - bitte = please
+   - genau = exactly
+   - willkommen = welcome
+   - tschüss = bye
+   - auf wiedersehen = goodbye
+   - danke = thanks
+   - gute nacht = good night
+   - bis bald = see you soon
+   - bis morgen = see you tomorrow
+   - bis später = see you later
+   - entschuldigung = I am sorry/sorry/excuse me
+   - es tut mir leid = I am sorry
+   - leider = unfortunately/sadly
+   - in ordnung = alright
+   - Ich heiße Partha = I am called Partha.
+** Things
+   - mann = man --- männer = men
+   - frau = woman
+   - mädchen = girl
+   - junge = boy --- jungen = boys
+   - kind = child --- kinder = children
+
+   - wasser = water
+   - brot = bread
+   - die nuss = the nut
+   - die milch = the milk
+   - die butter = the butter
+   - der honig = the honey
+** Verbs
+
+   - bin = am
+   - sind = are (wir)
+   - bist = are (du)
+   - seid = are (ihr)
+   - ist = is
+
+   - trinkt = drink/drinks/is drinking(ihr)
+   - trinke = drink/am drinking
+   - trinkst = drink/are drinking(du)
+   - trinken = drink/are drinking(sie, wir)
+
+   - kommst = come
+** Other
+
+   - und = and
+   - ein = a/one/an (masculine/neuter)
+   - eine = a/one/an (feminine)
+   - das = the/this/that(nuter)
+   - der = the/this/that(masculine)
+   - die = the/this/that(feminine)
+
+   - aus = from
+** Pronouns
+   - ich = I
+   - wir = we
+   - du = you(single)
+   - ihr = you(plural)
+   - er = he
+   - sie = she/they/you(formal)/it
+   - es = it
+

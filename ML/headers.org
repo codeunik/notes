@@ -1,0 +1,201 @@
+#+LATEX_CLASS_OPTIONS: [a4paper,11pt]
+#+LATEX_HEADER: \usepackage[left=3cm,right=3cm,top=3cm,bottom=3cm]{geometry}
+#+LaTeX_HEADER:\usepackage{tikz,amsthm,hyperref}
+#+latex_header: \newtheorem{theorem}{Theorem}
+#+latex_header: \newtheorem{definition}{Definition}
+#+LaTeX_HEADER:\newcommand{\bm}{\boldsymbol}
+#+LaTeX_HEADER:\renewcommand{\it}{\textit}
+#+LaTeX_HEADER:\renewcommand{\bf}{\textbf}
+#+LaTeX_HEADER:\renewcommand{\tt}{\texttt}
+#+LaTeX_HEADER:\renewcommand{\sc}{\textsc}
+#+LaTeX_HEADER:\renewcommand{\sl}{\textsl}
+#+LaTeX_HEADER:\newcommand{\bb}{\mathbb}
+#+LaTeX_HEADER:\newcommand{\fr}{\mathfrak}
+#+LaTeX_HEADER:\renewcommand{\v}{\bm}
+#+LaTeX_HEADER:\newcommand{\rv}{\bf}
+#+LaTeX_HEADER:\newcommand{\tx}{\text}
+
+#+LaTeX_HEADER:\renewcommand{\top}[2]{\overbrace{#1}^{#2}}
+#+LaTeX_HEADER:\newcommand{\bottom}[2]{\underbrace{#1}_{#2}}
+#+LaTeX_HEADER:\renewcommand{\over}[2]{\overset{#2}{#1}}
+#+LaTeX_HEADER:\newcommand{\under}[2]{\underset{#2}{#1}}
+#+LaTeX_HEADER:\newcommand{\tl}{\tilde}
+#+LaTex_HEADER:\newcommand{\h}{\hat}
+#+LaTeX_HEADER:\newcommand{\uv}[1]{\hat{\bf{#1}}}
+#+LaTeX_HEADER:\newcommand{\arr}{\overrightarrow}
+#+LaTeX_HEADER:\renewcommand{\bar}{\overline}
+#+LaTeX_HEADER:\newcommand{\ubar}{\underline}
+
+#+LaTeX_HEADER:\newcommand{\ua}{\uparrow}
+#+LaTeX_HEADER:\newcommand{\da}{\downarrow}
+#+LaTeX_HEADER:\newcommand{\la}{\leftarrow}
+#+LaTeX_HEADER:\newcommand{\ra}{\rightarrow}
+#+LaTeX_HEADER:\newcommand{\xra}{\xrightarrow} %% \xra[below text]{above text}
+
+#+LaTeX_HEADER:\newcommand{\disp}{\displaystyle}
+#+LaTeX_HEADER:\newcommand{\q}{\frac}
+#+LaTeX_HEADER:\newcommand{\dd}[2]{\frac{\del #1}{\del #2}}
+#+LaTeX_HEADER:\newcommand{\ds}[1]{\frac{\del}{\del #1}}
+#+LaTeX_HEADER:\newcommand{\hdd}[3]{\frac{\del^{#1} #2}{\del #3^{#1}}}
+#+LaTeX_HEADER:\newcommand{\hds}[2]{\frac{\del^{#1}}{\del #2^{#1}}}
+#+LaTeX_HEADER:\newcommand{\case}[1]{\begin{cases} #1 \end{cases}}
+#+LaTeX_HEADER:\newcommand{\A}{\forall}
+#+LaTeX_HEADER:\newcommand{\E}{\exists}
+#+LaTeX_HEADER:\newcommand{\im}{\implies}
+#+LaTeX_HEADER:\newcommand{\x}{\times}
+#+LaTeX_HEADER:\newcommand{\xx}{\times}
+#+LaTeX_HEADER:\renewcommand{\u}{\cup}
+#+LaTeX_HEADER:\newcommand{\n}{\cap}
+#+LaTeX_HEADER:\newcommand{\uu}{\bigcup}
+#+LaTeX_HEADER:\newcommand{\nn}{\bigcap}
+#+LaTeX_HEADER:\renewcommand{\c}{\subset}
+#+LaTeX_HEADER:\newcommand{\nc}{\supset}
+#+LaTeX_HEADER:\newcommand{\ns}{\emptyset}
+#+LaTeX_HEADER:\renewcommand{\.}{\cdot}
+#+LaTeX_HEADER:\renewcommand{\o}{\circ}
+#+LaTeX_HEADER:\newcommand{\del}{\partial}
+#+LaTeX_HEADER:\newcommand{\oo}{\infty}
+
+#+LaTeX_HEADER:\newcommand{\fn}[1]{\operatorname{#1}}
+#+LaTeX_HEADER:\renewcommand{\Re}{\operatorname{Re}}
+#+LaTeX_HEADER:\renewcommand{\Im}{\operatorname{Im}}
+#+LaTeX_HEADER:\renewcommand{\dim}{\operatorname{dim}}
+#+LaTeX_HEADER:\newcommand{\tr}{\operatorname{tr}}
+#+LaTeX_HEADER:\newcommand{\rank}{\operatorname{rank}}
+#+LaTeX_HEADER:\newcommand{\diag}{\operatorname{diag}}
+#+LaTeX_HEADER:\newcommand{\cov}{\operatorname{Cov}}
+#+LaTeX_HEADER:\newcommand{\var}{\operatorname{Var}}
+#+LaTeX_HEADER:\newcommand{\cor}{\operatorname{Corr}}
+#+LaTeX_HEADER:\newcommand{\intr}{\operatorname{int}}
+#+LaTeX_HEADER:\newcommand{\extr}{\operatorname{ext}}
+#+LaTeX_HEADER:\newcommand{\diam}{\operatorname{diam}}
+#+LaTeX_HEADER:\newcommand{\grad}{\operatorname{grad}}
+#+LaTeX_HEADER:\renewcommand{\div}{\operatorname{div}}
+
+#+LaTeX_HEADER:\newcommand{\op}{\left(}
+#+LaTeX_HEADER:\newcommand{\cp}{\right)}
+#+LaTeX_HEADER:\newcommand{\oc}{\left\lbrace}
+#+LaTeX_HEADER:\newcommand{\cc}{\right\rbrace}
+#+LaTeX_HEADER:\newcommand{\ob}{\left[}
+#+LaTeX_HEADER:\newcommand{\cb}{\right]}
+#+LaTeX_HEADER:\newcommand{\ov}{\left|}
+#+LaTeX_HEADER:\newcommand{\cv}{\right|}
+#+LaTeX_HEADER:\newcommand{\oV}{\left\|}
+#+LaTeX_HEADER:\newcommand{\cV}{\right\|}
+#+LaTeX_HEADER:\newcommand{\on}{\left.}
+#+LaTeX_HEADER:\newcommand{\cn}{\right.}
+#+LaTeX_HEADER:\newcommand{\ip}[1]{\left\langle #1 \right\rangle}
+#+LaTeX_HEADER:\newcommand{\ina}[1]{\left\langle #1 \right\rangle}
+#+LaTeX_HEADER:\newcommand{\inp}[1]{\op #1 \cp}
+#+LaTeX_HEADER:\newcommand{\inb}[1]{\ob #1 \cb}
+#+LaTeX_HEADER:\newcommand{\inc}[1]{\oc #1 \cc}
+#+LaTeX_HEADER:\newcommand{\inv}[1]{\ov #1 \cv}
+#+LaTeX_HEADER:\newcommand{\inV}[1]{\oV #1 \cV}
+#+LaTeX_HEADER:\newcommand{\abs}[1]{\ov #1 \cv}
+#+LaTeX_HEADER:\newcommand{\norm}[1]{\oV #1 \cV}
+#+LaTeX_HEADER:\newcommand{\set}[1]{\oc #1 \cc}
+#+LaTeX_HEADER:\newcommand{\setb}[2]{\on \oc #1 \,\cv #2 \cc}
+#+LaTeX_HEADER:\newcommand{\ceil}[1]{\left \lceil #1 \right \rceil}
+#+LaTeX_HEADER:\newcommand{\floor}[1]{\left \lfloor #1 \right \rfloor}
+#+LaTeX_HEADER:\newcommand{\mat}[1]{\begin{matrix} #1 \end{matrix}}
+#+LaTeX_HEADER:\newcommand{\pmat}[1]{\begin{pmatrix} #1 \end{pmatrix}}
+#+LaTeX_HEADER:\newcommand{\bmat}[1]{\begin{bmatrix} #1 \end{bmatrix}}
+#+LaTeX_HEADER:\newcommand{\cmat}[1]{\inc{\begin{matrix} #1 \end{matrix}}}
+#+LaTeX_HEADER:\newcommand{\vmat}[1]{\begin{vmatrix} #1 \end{vmatrix}}
+
+#+LaTeX_HEADER:\newcommand{\B}{\mathbb{B}}
+#+LaTeX_HEADER:\newcommand{\C}{\mathbb{C}}
+#+LaTeX_HEADER:\renewcommand{\H}{\mathbb{H}}
+#+LaTeX_HEADER:\newcommand{\I}{\mathbb{I}}
+#+LaTeX_HEADER:\newcommand{\J}{\mathbb{J}}
+#+LaTeX_HEADER:\newcommand{\K}{\mathbb{K}}
+#+LaTeX_HEADER:\newcommand{\M}{\mathbb{M}}
+#+LaTeX_HEADER:\newcommand{\N}{\mathbb{N}}
+#+LaTeX_HEADER:\renewcommand{\P}{\mathbb{P}}
+#+LaTeX_HEADER:\newcommand{\Q}{\mathbb{Q}}
+#+LaTeX_HEADER:\newcommand{\R}{\mathbb{R}}
+#+LaTeX_HEADER:\newcommand{\T}{\mathbb{T}}
+#+LaTeX_HEADER:\newcommand{\U}{\mathbb{U}}
+#+LaTeX_HEADER:\newcommand{\W}{\mathbb{W}}
+#+LaTeX_HEADER:\newcommand{\Z}{\mathbb{Z}}
+
+#+LaTeX_HEADER:\renewcommand{\AA}{\mathcal{A}}
+#+LaTeX_HEADER:\newcommand{\BB}{\mathcal{B}}
+#+LaTeX_HEADER:\newcommand{\CC}{\mathcal{C}}
+#+LaTeX_HEADER:\newcommand{\DD}{\mathcal{D}}
+#+LaTeX_HEADER:\newcommand{\EE}{\mathcal{E}}
+#+LaTeX_HEADER:\newcommand{\FF}{\mathcal{F}}
+#+LaTeX_HEADER:\newcommand{\GG}{\mathcal{G}}
+#+LaTeX_HEADER:\newcommand{\HH}{\mathcal{H}}
+#+LaTeX_HEADER:\newcommand{\II}{\mathcal{I}}
+#+LaTeX_HEADER:\newcommand{\JJ}{\mathcal{J}}
+#+LaTeX_HEADER:\newcommand{\KK}{\mathcal{K}}
+#+LaTeX_HEADER:\newcommand{\LL}{\mathcal{L}}
+#+LaTeX_HEADER:\newcommand{\MM}{\mathcal{M}}
+#+LaTeX_HEADER:\newcommand{\NN}{\mathcal{N}}
+#+LaTeX_HEADER:\newcommand{\OO}{\mathcal{O}}
+#+LaTeX_HEADER:\newcommand{\PP}{\mathcal{P}}
+#+LaTeX_HEADER:\newcommand{\QQ}{\mathcal{Q}}
+#+LaTeX_HEADER:\newcommand{\RR}{\mathcal{R}}
+#+LaTeX_HEADER:\renewcommand{\SS}{\mathcal{S}}
+#+LaTeX_HEADER:\newcommand{\TT}{\mathcal{T}}
+#+LaTeX_HEADER:\newcommand{\UU}{\mathcal{U}}
+#+LaTeX_HEADER:\newcommand{\VV}{\mathcal{V}}
+#+LaTeX_HEADER:\newcommand{\WW}{\mathcal{W}}
+#+LaTeX_HEADER:\newcommand{\XX}{\mathcal{X}}
+#+LaTeX_HEADER:\newcommand{\YY}{\mathcal{Y}}
+#+LaTeX_HEADER:\newcommand{\ZZ}{\mathcal{Z}}
+
+#+LaTeX_HEADER:\newcommand{\AAA}{\mathfrak{A}}
+#+LaTeX_HEADER:\newcommand{\BBB}{\mathfrak{B}}
+#+LaTeX_HEADER:\newcommand{\CCC}{\mathfrak{C}}
+#+LaTeX_HEADER:\newcommand{\DDD}{\mathfrak{D}}
+#+LaTeX_HEADER:\newcommand{\EEE}{\mathfrak{E}}
+#+LaTeX_HEADER:\newcommand{\FFF}{\mathfrak{F}}
+#+LaTeX_HEADER:\newcommand{\GGG}{\mathfrak{G}}
+#+LaTeX_HEADER:\newcommand{\HHH}{\mathfrak{H}}
+#+LaTeX_HEADER:\newcommand{\III}{\mathfrak{I}}
+#+LaTeX_HEADER:\newcommand{\JJJ}{\mathfrak{J}}
+#+LaTeX_HEADER:\newcommand{\KKK}{\mathfrak{K}}
+#+LaTeX_HEADER:\newcommand{\LLL}{\mathfrak{L}}
+#+LaTeX_HEADER:\newcommand{\MMM}{\mathfrak{M}}
+#+LaTeX_HEADER:\newcommand{\NNN}{\mathfrak{N}}
+#+LaTeX_HEADER:\newcommand{\OOO}{\mathfrak{O}}
+#+LaTeX_HEADER:\newcommand{\PPP}{\mathfrak{P}}
+#+LaTeX_HEADER:\newcommand{\QQQ}{\mathfrak{Q}}
+#+LaTeX_HEADER:\newcommand{\RRR}{\mathfrak{R}}
+#+LaTeX_HEADER:\newcommand{\SSS}{\mathfrak{S}}
+#+LaTeX_HEADER:\newcommand{\TTT}{\mathfrak{T}}
+#+LaTeX_HEADER:\newcommand{\UUU}{\mathfrak{U}}
+#+LaTeX_HEADER:\newcommand{\VVV}{\mathfrak{V}}
+#+LaTeX_HEADER:\newcommand{\WWW}{\mathfrak{W}}
+#+LaTeX_HEADER:\newcommand{\XXX}{\mathfrak{X}}
+#+LaTeX_HEADER:\newcommand{\YYY}{\mathfrak{Y}}
+#+LaTeX_HEADER:\newcommand{\ZZZ}{\mathfrak{Z}}
+
+#+LaTeX_HEADER:\renewcommand{\a}{\alpha}
+#+LaTeX_HEADER:\renewcommand{\b}{\beta}
+#+LaTeX_HEADER:\newcommand{\g}{\gamma}
+#+LaTeX_HEADER:\renewcommand{\d}{\delta}
+#+LaTeX_HEADER:\newcommand{\ep}{\varepsilon}
+#+LaTeX_HEADER:\newcommand{\vep}{\epsilon}
+#+LaTeX_HEADER:\renewcommand{\th}{\theta}
+#+LaTeX_HEADER:\newcommand{\Th}{\Theta}
+#+LaTeX_HEADER:\renewcommand{\l}{\lambda}
+#+LaTeX_HEADER:\renewcommand{\k}{\kappa}
+#+LaTeX_HEADER:\renewcommand{\r}{\rho}
+#+LaTeX_HEADER:\renewcommand{\t}{\tau}
+#+LaTeX_HEADER:\newcommand{\w}{\omega}
+#+LaTeX_HEADER:\newcommand{\s}{\sigma}
+#+LaTeX_HEADER:\newcommand{\z}{\zeta}
+#+LaTeX_HEADER:\renewcommand{\S}{\Sigma}
+#+LaTeX_HEADER:\renewcommand{\L}{\Lambda}
+#+LaTeX_HEADER:\newcommand{\D}{\Delta}
+#+LaTeX_HEADER:\newcommand{\G}{\Gamma}
+#+LaTeX_HEADER:\renewcommand{\O}{\Omega}
+#+LaTeX_HEADER:\newcommand{\V}{\nabla}
+#+LaTeX_HEADER:\newcommand{\F}{\Phi}
+#+LaTeX_HEADER:\newcommand{\f}{\phi}
+#+LaTeX_HEADER:\newcommand{\X}{\chi}
+#+LaTeX_HEADER:\newcommand{\y}{\psi}
+#+LaTeX_HEADER:\newcommand{\Y}{\Psi}

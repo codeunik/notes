@@ -1,0 +1,300 @@
+% Created 2020-08-24 Mon 14:16
+% Intended LaTeX compiler: pdflatex
+\documentclass[a4paper,11pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{graphicx}
+\usepackage{grffile}
+\usepackage{longtable}
+\usepackage{wrapfig}
+\usepackage{rotating}
+\usepackage[normalem]{ulem}
+\usepackage{amsmath}
+\usepackage{textcomp}
+\usepackage{amssymb}
+\usepackage{capt-of}
+\usepackage{hyperref}
+\usepackage[left=3cm,right=3cm,top=3cm,bottom=3cm]{geometry}
+\usepackage{tikz,amsthm,hyperref}
+\newtheorem{theorem}{Theorem}
+\newtheorem{definition}{Definition}
+\newcommand{\bm}{\boldsymbol}
+\renewcommand{\it}{\textit}
+\renewcommand{\bf}{\textbf}
+\renewcommand{\tt}{\texttt}
+\renewcommand{\sc}{\textsc}
+\renewcommand{\sl}{\textsl}
+\newcommand{\bb}{\mathbb}
+\newcommand{\fr}{\mathfrak}
+\renewcommand{\v}{\bm}
+\newcommand{\rv}{\bf}
+\newcommand{\tx}{\text}
+\renewcommand{\top}[2]{\overbrace{#1}^{#2}}
+\newcommand{\bottom}[2]{\underbrace{#1}_{#2}}
+\renewcommand{\over}[2]{\overset{#2}{#1}}
+\newcommand{\under}[2]{\underset{#2}{#1}}
+\newcommand{\tl}{\tilde}
+\newcommand{\h}{\hat}
+\newcommand{\uv}[1]{\hat{\bf{#1}}}
+\newcommand{\arr}{\overrightarrow}
+\renewcommand{\bar}{\overline}
+\newcommand{\ubar}{\underline}
+\newcommand{\ua}{\uparrow}
+\newcommand{\da}{\downarrow}
+\newcommand{\la}{\leftarrow}
+\newcommand{\ra}{\rightarrow}
+\newcommand{\xra}{\xrightarrow} %% \xra[below text]{above text}
+\newcommand{\disp}{\displaystyle}
+\newcommand{\q}{\frac}
+\newcommand{\dd}[2]{\frac{\del #1}{\del #2}}
+\newcommand{\ds}[1]{\frac{\del}{\del #1}}
+\newcommand{\hdd}[3]{\frac{\del^{#1} #2}{\del #3^{#1}}}
+\newcommand{\hds}[2]{\frac{\del^{#1}}{\del #2^{#1}}}
+\newcommand{\case}[1]{\begin{cases} #1 \end{cases}}
+\newcommand{\A}{\forall}
+\newcommand{\E}{\exists}
+\newcommand{\im}{\implies}
+\newcommand{\x}{\times}
+\newcommand{\xx}{\times}
+\renewcommand{\u}{\cup}
+\newcommand{\n}{\cap}
+\newcommand{\uu}{\bigcup}
+\newcommand{\nn}{\bigcap}
+\renewcommand{\c}{\subset}
+\newcommand{\nc}{\supset}
+\newcommand{\ns}{\emptyset}
+\renewcommand{\.}{\cdot}
+\renewcommand{\o}{\circ}
+\newcommand{\del}{\partial}
+\newcommand{\oo}{\infty}
+\newcommand{\fn}[1]{\operatorname{#1}}
+\renewcommand{\Re}{\operatorname{Re}}
+\renewcommand{\Im}{\operatorname{Im}}
+\renewcommand{\dim}{\operatorname{dim}}
+\newcommand{\tr}{\operatorname{tr}}
+\newcommand{\rank}{\operatorname{rank}}
+\newcommand{\diag}{\operatorname{diag}}
+\newcommand{\cov}{\operatorname{Cov}}
+\newcommand{\var}{\operatorname{Var}}
+\newcommand{\cor}{\operatorname{Corr}}
+\newcommand{\intr}{\operatorname{int}}
+\newcommand{\extr}{\operatorname{ext}}
+\newcommand{\diam}{\operatorname{diam}}
+\newcommand{\grad}{\operatorname{grad}}
+\renewcommand{\div}{\operatorname{div}}
+\newcommand{\op}{\left(}
+\newcommand{\cp}{\right)}
+\newcommand{\oc}{\left\lbrace}
+\newcommand{\cc}{\right\rbrace}
+\newcommand{\ob}{\left[}
+\newcommand{\cb}{\right]}
+\newcommand{\ov}{\left|}
+\newcommand{\cv}{\right|}
+\newcommand{\oV}{\left\|}
+\newcommand{\cV}{\right\|}
+\newcommand{\on}{\left.}
+\newcommand{\cn}{\right.}
+\newcommand{\ip}[1]{\left\langle #1 \right\rangle}
+\newcommand{\ina}[1]{\left\langle #1 \right\rangle}
+\newcommand{\inp}[1]{\op #1 \cp}
+\newcommand{\inb}[1]{\ob #1 \cb}
+\newcommand{\inc}[1]{\oc #1 \cc}
+\newcommand{\inv}[1]{\ov #1 \cv}
+\newcommand{\inV}[1]{\oV #1 \cV}
+\newcommand{\abs}[1]{\ov #1 \cv}
+\newcommand{\norm}[1]{\oV #1 \cV}
+\newcommand{\set}[1]{\oc #1 \cc}
+\newcommand{\setb}[2]{\on \oc #1 \,\cv #2 \cc}
+\newcommand{\ceil}[1]{\left \lceil #1 \right \rceil}
+\newcommand{\floor}[1]{\left \lfloor #1 \right \rfloor}
+\newcommand{\mat}[1]{\begin{matrix} #1 \end{matrix}}
+\newcommand{\pmat}[1]{\begin{pmatrix} #1 \end{pmatrix}}
+\newcommand{\bmat}[1]{\begin{bmatrix} #1 \end{bmatrix}}
+\newcommand{\cmat}[1]{\inc{\begin{matrix} #1 \end{matrix}}}
+\newcommand{\vmat}[1]{\begin{vmatrix} #1 \end{vmatrix}}
+\newcommand{\B}{\mathbb{B}}
+\newcommand{\C}{\mathbb{C}}
+\renewcommand{\H}{\mathbb{H}}
+\newcommand{\I}{\mathbb{I}}
+\newcommand{\J}{\mathbb{J}}
+\newcommand{\K}{\mathbb{K}}
+\newcommand{\M}{\mathbb{M}}
+\newcommand{\N}{\mathbb{N}}
+\renewcommand{\P}{\mathbb{P}}
+\newcommand{\Q}{\mathbb{Q}}
+\newcommand{\R}{\mathbb{R}}
+\newcommand{\T}{\mathbb{T}}
+\newcommand{\U}{\mathbb{U}}
+\newcommand{\W}{\mathbb{W}}
+\newcommand{\Z}{\mathbb{Z}}
+\renewcommand{\AA}{\mathcal{A}}
+\newcommand{\BB}{\mathcal{B}}
+\newcommand{\CC}{\mathcal{C}}
+\newcommand{\DD}{\mathcal{D}}
+\newcommand{\EE}{\mathcal{E}}
+\newcommand{\FF}{\mathcal{F}}
+\newcommand{\GG}{\mathcal{G}}
+\newcommand{\HH}{\mathcal{H}}
+\newcommand{\II}{\mathcal{I}}
+\newcommand{\JJ}{\mathcal{J}}
+\newcommand{\KK}{\mathcal{K}}
+\newcommand{\LL}{\mathcal{L}}
+\newcommand{\MM}{\mathcal{M}}
+\newcommand{\NN}{\mathcal{N}}
+\newcommand{\OO}{\mathcal{O}}
+\newcommand{\PP}{\mathcal{P}}
+\newcommand{\QQ}{\mathcal{Q}}
+\newcommand{\RR}{\mathcal{R}}
+\renewcommand{\SS}{\mathcal{S}}
+\newcommand{\TT}{\mathcal{T}}
+\newcommand{\UU}{\mathcal{U}}
+\newcommand{\VV}{\mathcal{V}}
+\newcommand{\WW}{\mathcal{W}}
+\newcommand{\XX}{\mathcal{X}}
+\newcommand{\YY}{\mathcal{Y}}
+\newcommand{\ZZ}{\mathcal{Z}}
+\newcommand{\AAA}{\mathfrak{A}}
+\newcommand{\BBB}{\mathfrak{B}}
+\newcommand{\CCC}{\mathfrak{C}}
+\newcommand{\DDD}{\mathfrak{D}}
+\newcommand{\EEE}{\mathfrak{E}}
+\newcommand{\FFF}{\mathfrak{F}}
+\newcommand{\GGG}{\mathfrak{G}}
+\newcommand{\HHH}{\mathfrak{H}}
+\newcommand{\III}{\mathfrak{I}}
+\newcommand{\JJJ}{\mathfrak{J}}
+\newcommand{\KKK}{\mathfrak{K}}
+\newcommand{\LLL}{\mathfrak{L}}
+\newcommand{\MMM}{\mathfrak{M}}
+\newcommand{\NNN}{\mathfrak{N}}
+\newcommand{\OOO}{\mathfrak{O}}
+\newcommand{\PPP}{\mathfrak{P}}
+\newcommand{\QQQ}{\mathfrak{Q}}
+\newcommand{\RRR}{\mathfrak{R}}
+\newcommand{\SSS}{\mathfrak{S}}
+\newcommand{\TTT}{\mathfrak{T}}
+\newcommand{\UUU}{\mathfrak{U}}
+\newcommand{\VVV}{\mathfrak{V}}
+\newcommand{\WWW}{\mathfrak{W}}
+\newcommand{\XXX}{\mathfrak{X}}
+\newcommand{\YYY}{\mathfrak{Y}}
+\newcommand{\ZZZ}{\mathfrak{Z}}
+\renewcommand{\a}{\alpha}
+\renewcommand{\b}{\beta}
+\newcommand{\g}{\gamma}
+\renewcommand{\d}{\delta}
+\newcommand{\ep}{\varepsilon}
+\newcommand{\vep}{\epsilon}
+\renewcommand{\th}{\theta}
+\newcommand{\Th}{\Theta}
+\renewcommand{\l}{\lambda}
+\renewcommand{\k}{\kappa}
+\renewcommand{\r}{\rho}
+\renewcommand{\t}{\tau}
+\newcommand{\w}{\omega}
+\newcommand{\s}{\sigma}
+\newcommand{\z}{\zeta}
+\renewcommand{\S}{\Sigma}
+\renewcommand{\L}{\Lambda}
+\newcommand{\D}{\Delta}
+\newcommand{\G}{\Gamma}
+\renewcommand{\O}{\Omega}
+\newcommand{\V}{\nabla}
+\newcommand{\F}{\Phi}
+\newcommand{\f}{\phi}
+\newcommand{\X}{\chi}
+\newcommand{\y}{\psi}
+\newcommand{\Y}{\Psi}
+\usepackage{booktabs}
+\newcommand{\vth}{\bm{\th}}
+\newcommand{\vx}{\v x}
+\newcommand{\vy}{\v y}
+\renewcommand{\vep}{\bm{\ep}}
+\newcommand{\hvth}{\hat{\bm{\th}}}
+\newcommand{\vmu}{\bm{\mu}}
+\author{Partha Ghosh}
+\date{\today}
+\title{Recurrent Neural Network Model}
+\hypersetup{
+ pdfauthor={Partha Ghosh},
+ pdftitle={Recurrent Neural Network Model},
+ pdfkeywords={},
+ pdfsubject={},
+ pdfcreator={Emacs 26.3 (Org mode 9.1.9)}, 
+ pdflang={English}}
+\begin{document}
+
+\maketitle
+\tableofcontents
+
+\section{Problems in using standard NN}
+\label{sec:org9907998}
+\begin{itemize}
+\item Inputs, outputs can be different lengths in different examples.
+\item Doesn't share features learned across different positions of text. (For
+example, 'Harry' appearing as the first word in the sentence, 'he'
+appearing afterward, standard NN wouldn't able to learn that 'Harry' is
+a male character.)
+\end{itemize}
+
+RNN solves these problems. Below is the RNN architechture:
+\begin{center}
+\includegraphics[width=.9\linewidth]{./img/rnn.png}
+\end{center}
+\section{Forward propagation in RNN}
+\label{sec:org30e3fa2}
+We start with \(\v a^{\ip{0}}=\v 0\) or a vector with random initialization and at \(t\)-timestamp we have
+\begin{align*}
+\v a^{\ip{t}}&=g_{1}(W_{aa}\v a^{\ip{t-1}}+W_{ax}\v x^{\ip{t}}+b_{a}) =
+g_{1}(W_{a}[\v a^{\ip{t-1}}, \v x^{\ip{t}}]^{t}+b_{a})\\
+\h{\v y}^{\ip{t}}&=g_{2}(W_{ya}\v a^{\ip{t}}+b_{y})
+\end{align*}
+Here \(W_{a}=[W_{aa}|W_{ax}]\).
+Generally we use tanh or ReLu activations for \(g_{1}\) and depending on
+what output \(y\) is, for example if it a classification task we use softmax
+for \(g_{2}\). 
+\section{Backpropagation through time}
+\label{sec:orga2c808f}
+\[\LL(\h{\v y},\v y) = \sum_{t=1}^{T_{y}}\LL^{\ip{t}}\inp{\h{\v y}^{\ip{t}},\v
+      y^{\ip{t}}}\]
+\section{Different Types of RNN}
+\label{sec:org87c00d6}
+\subsection{Many-to-many}
+\label{sec:orgfa558ff}
+\subsubsection{Input and output lengths are same}
+\label{sec:org8d542ff}
+\begin{center}
+\includegraphics[width=.9\linewidth]{./img/many-to-many(same).png}
+\end{center}
+\textbf{Applications:}
+\begin{itemize}
+\item Name entity recognition
+\end{itemize}
+\subsubsection{Input and output lengths are different}
+\label{sec:orge1de73d}
+\begin{center}
+\includegraphics[width=.9\linewidth]{./img/many-to-many(different).png}
+\end{center}
+\textbf{Applications:}
+\begin{itemize}
+\item Machine translation
+\end{itemize}
+\subsection{Many-to-one}
+\label{sec:org29e6ac6}
+\begin{center}
+\includegraphics[width=.9\linewidth]{./img/many-to-one.png}
+\end{center}
+\textbf{Applications:}
+\begin{itemize}
+\item Sentiment Analysis
+\end{itemize}
+\subsection{One-to-many}
+\label{sec:org3325850}
+\begin{center}
+\includegraphics[width=.9\linewidth]{./img/one-to-many.png}
+\end{center}
+\textbf{Applications:}
+\begin{itemize}
+\item Music generation
+\end{itemize}
+\end{document}

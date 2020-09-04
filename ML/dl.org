@@ -1,0 +1,1170 @@
+:PROPERTIES:
+#+TITLE: Deep Learning
+#+AUTHOR: Partha Ghosh
+#+SETUPFILE: ~/org/headers.org
+
+#+LaTex_HEADER:\usepackage{booktabs}
+#+LaTex_HEADER:\newcommand{\vth}{\bm{\th}}
+#+LaTex_HEADER:\newcommand{\vx}{\v x}
+#+LaTex_HEADER:\newcommand{\vy}{\v y}
+#+LaTex_HEADER:\renewcommand{\vep}{\bm{\ep}}
+#+LaTex_HEADER:\newcommand{\hvth}{\hat{\bm{\th}}}
+#+LaTex_HEADER:\newcommand{\vmu}{\bm{\mu}}
+
+:END:
+
+* Neural Networks
+*** Basics
+    We use $L$ layers with $n^{[i]}$ nodes in \(i\)-th layer with ReLu activation to determine the features/functions in data results in the output and use problem specific activation function for the output node and train the network using gradient descent(compute the weights minimizing the loss function).
+
+  A typical 2 layers (3,1)NN:
+
+  $\vx=\v a^{[0]}\to {W^{[1]}}^T\v a^{[0]}+\v b^{[1]}=\v z^{[1]}\to\s^{[1]}(\v z^{[1]})=\v a^{[1]}\to{W^{[2]}}^T\v a^{[1]}+\v b^{[2]}=\v z^{[2]}\to\s^{[2]}(\v z^{[2]})=\v a^{[2]}=\h y$
+
+  where,
+  - $\v a^{[i]}$ is the activations in the \(i\)-th layer, [$\v x = \v a^{[0]}$ is
+    called the input layer and $y = \v a^{[L]}$ is called the output layer and all other layers
+    are called the hidden layers]
+  - $W^{[i]}$ is the weight matrix for the \(i\)-th layer,
+  - $b^{[i]}$ is the bias for the \(i\)-th layer broadcasted into appropriate dimension,
+  - $\s^{[i]}$ is the activation function for the \(i\)-th layer.
+  Taking a batch of $\set{\v x^{(i)}}_{i=1}^m$ jointly, we have the NN architecture as,
+
+  $X=A^{[0]}\to {W^{[1]}}^T A^{[0]}+\v b^{[1]}=Z^{[1]}\to\s^{[1]}(Z^{[1]})=A^{[1]}\to{W^{[2]}}^T A^{[1]}+\v b^{[2]}=Z^{[2]}\to\s^{[2]}(Z^{[2]})=A^{[2]}=\h{\v y}$
+
+  where $X=\bmat{|&&|\\\v x^{(1)}&\cdots &\v x^{(m)}\\|&&|}=A^{[0]}=\bmat{|&&|\\\v a^{[0](1)} & \cdots &\v a^{[0](m)}\\|&&|}$ and $\h{\v y}=\bmat{\h y^{(1)}&\cdots &\h y^{(m)}}$.
+
+  Similarly as before, we minimize the cost function
+  $J=\q1m\sum_{i=1}^m\LL(y^{(i)},\h y^{(i)})$ using gradient descent to determine
+  the parameters. Note that it's important to initialize the weights randomly
+  otherwise all the hidden units in the next layer will be the same i.e. its
+  equivalent to having a single hidden unit in that layer. Also initializing these
+  weights close to 0 is necessary as some activation functions have slope close to
+  0 for large values, thus slow down the learning.
+*** Activation Functions
+    - $\s(z) = \tanh(z) = \q{e^{z}-e^{-z}}{e^{z}+e^{-z}}$: This is a shifted
+      version of sigmoid function always almost works better than the sigmoid
+      function as its range is (-1, 1), the values in the hidden layers are
+      closer to having a zero mean as sometimes when you train a learning
+      algorithm, you might center the data and have your data have 0 mean using a
+      tanh instead of a sigmoid function. It kind of has the effect of centering
+      your data so that the mean of your data is closer to 0 rather than, maybe
+      0.5. And this actually makes learning for the next layer a little bit
+      easier.
+    - One of the downsides of both the sigmoid function and the tanh function is
+      that if z is either very large or very small, then the gradient or the
+      derivative or the slope of this function becomes very small. So if z is
+      very large or z is very small, the slope of the function ends up being
+      close to 0. And so this can slow down gradient descent. So one other choice
+      that is very popular in machine learning is what's called the rectify
+      linear unit(ReLU) which is \(\s(z) = \max(0,z)\).
+    - One disadvantage of the ReLU is that the derivative is equal to zero, when
+      z is negative. In practice, this works just fine. But there is another
+      version of the ReLU called the leaky ReLU \(\s(z) = \max(0.01z, z)\) [0.01
+      can also be made a parameter for the learning algorithm] which usually
+      works better than the ReLU activation function, although it's just not used
+      as much in practice.
+    - Linear activation function \(\s(z) = z\).
+
+  the advantage of both the ReLU and the leaky ReLU is that for a lot of the
+  space of Z, the derivative of the activation function, the slope of the
+  activation function is very different from 0. And so in practice, using the
+  ReLU activation function, your neural network will often learn much faster than
+  when using the tanh or the sigmoid activation function. And the main reason is
+  that there is less of these effects of the slope of the function going to 0,
+  which slows down learning. And I know that for half of the range of z, the
+  slope of ReLU is 0, but in practice, enough of your hidden units will have z
+  greater than 0. So learning can still be quite fast for most training
+  examples. 
+*** Why does a neural network need a non-linear activation function?
+ Neural networks with many hidden layers. And it turns out that if you use a
+ linear activation function or alternatively, if you don't have an activation
+ function, then no matter how many layers your neural network has, all it's doing
+ is just computing a linear activation function, since composition of two linear
+ functions is also linear. So you might as well not have any hidden layers.
+ So if we don't throw non-linear activation functions we aren't computing
+ interestin functions even if we have a deep network.
+
+ There is just one place where you might use a linear activation function. g(x) =
+ z. And that's if you are doing machine learning on the regression problem i.e. y
+ is a real number. Then in the output layer we can use a linear activation
+ function, but then the hidden units should not use the linear activation function.
+* Improving Deep Neural Network
+*** Setting Up ML Application
+**** Train/Dev/Test Sets
+     In practice, we split the data into train/dev/test sets. If size of the
+     data is moderate(~1000) we use 70/15/15 or 60/20/20 split. But if the data
+     is huge we use 99/0.5/0.5 split.
+**** Bias and Variance
+     - *High Bias(training data performance)?* 
+       Solutions:
+       + Make the network bigger
+       + train longer/better optimization algorithm(momentum, RMSprop, Adam)
+       + change NN architecture/hyperparameters
+     - *High Variance(dev set performance)?* 
+       Solutions:
+       + Get more data
+       + regularization (\(L_{2}\), dropout, data augmentation)
+       + change NN architecture
+*** Regularization
+    - If we set a reasonable regularization term \(\l\), then it incentivize to
+      set the weights of \(W\) to be reasonably close to zero, and so zeroing
+      out a lot of the impact of these hidden units and simplifying the
+      underlying NN and thus less prone to over fitting.
+    - Another intution why regularization prevent overfitting is that if \(W\)
+      is close to zero then the activation functions (such as sigmoid or tanh)
+      will be also close to zero and in that region it is linear and we know if
+      every layer is linear then your whole network is just a linear
+      network. And so even a very deep network, with a deep network with a
+      linear activation function is at the end they are only able to compute a
+      linear function. So it's not able to fit those very very complicated decision.
+    - *$L_2$ Regularization:* $J=\q1m\sum_{i=1}^m\LL(y^{(i)},\h
+      y^{(i)})+\q\l{2m}\norm{\v w}^2$. 
+    - *$L_1$ regularization:* \(J=\q1m\sum_{i=1}^m\LL(y^{(i)},\h y^{(i)})+\q\l{2m}\sum_{j=1}^{m}|w_{j}|\).
+    - For NN we use frobenius norm
+      i.e. \(\norm{W}^{2}_{F}=\sum_{i=1}^{n^{[l-1]}}\sum_{j=1}^{n^{[l]}}(w_{ij}^{[l]})^{2}\)
+      and so  $J=\q1m\sum_{i=1}^m\LL(y^{(i)},\h y^{(i)})+\q\l{2m}\norm{W}^{2}_{F}$. 
+    - *Dropout Regularization:* Implementation of dropout ("Inverted dropout") in the 3rd layer with =keep_prob=0.8=.
+#+BEGIN_SRC python
+d3 = np.random.rand(a3.shape[0], a3.shape[1]) < keep_prob
+a3 = d3 * a3
+a3 /=  keep_prob # this scales the expected value
+#+END_SRC
+      - At test time don't use dropout.
+      - Dropout works because it make sure that NN can't rely on any one
+        feature, so have to spread out weights.
+      - We use a lower keep_prob for the layers which have many hidden units
+        to reduce overfitting.
+    - *Other Regularization Methods:*
+	- /Data Augmentation:/ Manipulate the data to create new data such that the information is retained.
+	- /Early Stopping:/ Stop training when dev set error is not decreasing anymore.
+*** Optimizing Training
+**** Normalization
+     Normalizing the data make the cost function much more regular in shape, thus increase the chance to quickly attain the minimum.
+**** Weight Initialization
+     If the weight matrices \(W > I\) in each layer then the activations
+     increases exponentially and for \(W < I\) activations decreases
+     exponentially and thus gradients also increase or decrease
+     exponentially. And thus takes long time for learning. A partial solution to
+     this problem is by careful initialization of the weights.
+     Below is list of weight initialization for different activation function in the layer $l$:
+     - /sigmoid:/ $\NN\inp{0,\q1{\sqrt{n^{[l-1]}}}}$
+     - /ReLu:/ $\NN\inp{0,\sqrt{\q2{n^{[l-1]}}}}$
+     - /tanh:/ $\NN\inp{0,\q1{\sqrt{n^{[l-1]}}}}$ or $\NN\inp{0,\sqrt{\q2{n^{[l-1]}+n^{[l]}}}}$
+**** Numerical Approximation of Gradients
+     Instead of using \(f'(x)=\q{f(x+\ep)-f(x)}{\ep}\), if we use
+     \(f'(x)=\q{f(x+\ep)-f(x-\ep)}{2\ep}\), then this usually gives us better
+     approximation for gradients.
+**** Gradient Checking
+**** Mini-batch Gradient Descent
+     Randomly shuffle the data and split it into \(n\) mini-batches. Now use
+     these mini-batchs \(X^{\set{t}}, y^{\set{t}}\) iteratively to train the NN
+     for each epoch.
+     
+     If size of mini-batch = size of the entire training set then it is called
+     Batch Gradient Descent.
+
+     If size of mini-batch = 1, then it is called Stochastic Gradient Descent.
+     
+     In practice, we use mini-batch size in between the two(64, 128, 256, 512, 1024).
+**** Gradient Descent with Momentum
+     *Exponentially Weighted (Moving) Average:* Given $\set{\th_i}_{i\ge1}$, the
+     exponentially weighted average of the first $n$  terms is defined as
+     $v_n=\b v_{n-1}+(1-\b)\th_n$ where $\b\in(0,1)$ and $v_0=0$. We can use
+     this to stabilize the drastic gradient change in each iteration to speed up
+     learning.
+
+     - /Bias Correction/: If we use \(v_{0}=0\), then it will not give a very
+       good estimate of \(\th\) for a first few iterations. To overcome this, we
+       take \(v_{n}=\q{\b v_{n-1}+(1-\b)\th_{n}}{1-\b^{n}}\).
+     
+     /Implementation:/ (Commonly, we use \(\b = 0.9\))
+     - $v_{dW}=\v 0,v_{db}=0$,
+     - On iteration $t$:
+       - Compute $dW,db$ on current mini-batch.
+       - $v_{dW}=\b v_{dW}+(1-\b)dW$ and $v_{db}=\b v_{db}+(1-\b)db$,
+       - $W = W-\a v_{dW},b=b-\a v_{db}$.
+**** RMSprop
+     This is used for scaling the gradients.
+     /Implementation:/
+     - $S_{dW}=0,S_{db}=0$,
+     - On iteration $t$:
+       - Compute $dW,db$ on current mini-batch.
+       - $S_{dW}=\b_2S_{dW}+(1-\b_2)dW^2$ where $dW^2$ calculated elementwise,
+       - $S_{db}=\b_2S_{db}+(1-\b_2)db^2$,
+       - $W:=W-\a\q{dW}{\sqrt{S_{dW}+\ep}}$ and $b:=b-\a\q{db}{\sqrt{S_{db}+\ep}}$.
+**** Adam(Adaptive Moment Estimation)
+     /Implementation:/
+     - $V_{dW}=\v 0, V_{db}=0, S_{dW}=0,S_{db}=0$,
+     - On iteration $t$:
+       - Compute $dW,db$ on current mini-batch.
+       - $v_{dW}=\b_1 v_{dW}+(1-\b_1)dW$ and $v_{db}=\b_1 v_{db}+(1-\b_1)db$,
+       - $S_{dW}=\b_2S_{dW}+(1-\b_2)dW^2$ and $S_{db}=\b_2S_{db}+(1-\b_2)db^2$,
+       - On \(t\)-th iteration:
+         - \(v_{dW}^{corrected} = \q{v_{dW}}{1-\b_{1}^{t}}\) and \(v_{db}^{corrected} = \q{v_{db}}{1-\b_{1}^{t}}\)
+         - \(S_{dW}^{corrected} = \q{S_{dW}}{1-\b_{2}^{t}}\) and \(v_{db}^{corrected} = \q{S_{db}}{1-\b_{1}^{t}}\)
+       - $W:=W-\a\q{v_{dW}^{corrected}}{\sqrt{S_{dW}^{corrected}+\ep}}$ and $b:=b-\a\q{v_{db}^{corrected}}{\sqrt{S_{db}^{corrected}+\ep}}$.
+     Generally $\b_1=0.9,\b_2=0.999,\ep=10^{-8}$ is considered.
+**** Learning Rate Decay
+   - $\a = \q1{1+r* n}\a_0$ where $r$ is the decay rate and $n$ is the epochnum increased by 1 after a complete pass through all the mini-batches.
+   - /Exponential Decay:/ $\a=0.95^{n}\a_0$.
+   - $\a=\q{k}{\sqrt{n}}\a_0$.
+*** Hyperparameter Tuning
+    - Hyperparameters with more importance for tuning kept first:
+      - \(\a\)
+      - \(\b\)
+      - number of hidden units
+      - mini-batch size
+      - layers
+      - learning rate decay
+      - \(\b_{1},\b_{2},\ep\)
+    - Sampling Hyperparameters:
+      - Sampling at random
+      - Coarse to fine sampling
+
+*** Batch Normalization
+    Consider the following NN:
+    $X=A^{[0]}\to {W^{[1]}}^T A^{[0]}+\v
+    b^{[1]}=Z^{[1]}\to\s^{[1]}(Z^{[1]})=A^{[1]}\to{W^{[2]}}^T A^{[1]}+\v
+    b^{[2]}=Z^{[2]}\to\s^{[2]}(Z^{[2]})=A^{[2]}=\h{\v y}$
+
+    In batch/mini-batch normalization, we normalize \(Z^{[i]}\), to be \(Z_{norm}^{[i]}\) in each layer,
+    and scale and shift it as learnable parameters i.e. we set \(\tl Z^{[i]}=\g^{[i]}
+    Z_{norm}^{[i]}+\b^{[i]}\) and proceed with this.
+    
+    Now, since in each layer we are shifting by \(\b^{[i]}\) after normalization, there is no need
+    to have the bias term \(b^{[i]}\) in the algorithm.
+
+    Batch norm ensures that in a given layer, the input data from the previous
+    layer has the same mean and variance and this stabilization helps in
+    training each layers training slightly independent than the previous layers
+    and thus speeds up learning.
+
+*** Ensembling
+    In this technique, we train 3 - 15 NN with random initialization and average
+    the output. This results in 1-2% improvement in performance.
+*** Deep Learning Frameworks
+   Caffe/Caffe2, CNTK, DL4J, Keras, Lasagne, mxnet, PaddlePaddle, TensorFlow, Theano, Torch
+Footnotes
+
+[fn:4] Instead of representing the data as vector of fixed size $p$, we can also represent the vector as varying size (number of words in the message) such that first element represent the id of the first word and so on.
+
+[fn:3] In general $\v Z_i$ can be of any distribution.
+[fn:1]  Note that we do not need $p_k$ as a parameter since $p_k=1-\sum_{i=1}^{k-1}p_i$.
+
+[fn:2] If we use $$h_{\bm{\th}}(\v x)=\case{1&\text{if }\bm{\th}^T\v x
+\ge0\\0&\text{if }\bm{\th}^T\v x<0}.$$ Then using the same update rule
+as above, we have the perceptron learning algorithm. It does not
+convey any meaningful probabilistic interpretation.
+* ML Strategy
+*** Introduction
+**** Why ML Strategy
+     When it comes to improve the Deep Learning System, there are various options available, like
+     - collect more data
+     - collect more diverse training set
+     - train algorithm longer with gradient descent
+     - train adam instead of gradient descent
+     - try bigger network
+     - try smaller network
+     - try dropout
+     - add \(L_{2}\) regularization
+     - try changing network architecture
+       - try different activation function
+       - change the number of different hidden units
+       - ...
+     But which one to try first so that we can improve the system efficently.
+**** Orthogonalization
+     Chain of assumptions in ML
+     1. Fit training set well on cost function.
+	* If it does not fit well then try
+          - bigger network
+	  - Adam
+	  - early stopping(but andrew does not recommend it because it
+            simultaneously affect both training and dev set performance, i.e. not
+            orthogonalized control), etc.
+     2. Once the model fits the training set, fit the dev set well on cost function.
+	* If it does not fit well then try
+          - regularization
+	  - bigger training set, etc.
+     3. Once the model fits the dev set, fit the test set well on cost function.
+	* If it does not fit well then try
+          - bigger dev set.
+     4. Once the model fits the dev set, check if it performs as expected in the
+	real world.
+	* If it does not fit well then try
+          - change the dev set
+	  - change the cost function.
+*** Setting up your Goal
+**** Single Number Evaluation Metric
+     Applying ML is very emperical/iterative process, we have some idea to
+     improve and tune the model/technique according to it and
+     check its performance and repeat. Let's say we previously built a classifier A, and
+     by tuning the hyperparameters or the training set we trained a new
+     classifier B. So one reasonable way to evaluate the performance of your
+     classifiers is to look at its *precision* and *recall*.
+     - *Precision:* P(input is A | Model predicts it is A)
+     - *Recall:* P(Model predicts it is A | input is A)
+     - *F1 Score:* \(\q2{\q1{\tx{precision}}+\q1{\tx{recall}}}\), the harmonic
+       mean of precision and recall can be used as a single metric to measure the
+       performance of a model and compare it among two models to pick the best one.
+**** Satisficing and Optimizing Metric
+     Sometimes it is not possible to come up with a single metric to measure the
+     performnaces of the classifers pick the best one. In that case, if we have
+     \(N\) metric for each classifer, we can chose 1 metric to optimize, and hold
+     other \(N-1\) metrics to satisfy some reasonable threshold.
+**** Train/dev/test sets
+     - dev/test sets should come from the same distribution
+     - set your test set to be big enough to give high confidence in overall
+       performance of your system.
+     - If the evaluation metric/cost function does not accurately tell you, given two
+       classifiers, which one is better for your application, then define a new one.
+*** Comparing to to human-level performance
+    As Deep learning are becoming more and more powerful, progress on a ML
+    problem tends to be relatively rapid as you approach human level
+    performance. But as the algorithm surpasses human-level performance then
+    progress and accuracy slows down, but can't surpasses some theoretical
+    limit, which is called the Bayes optimal error. Sometimes we take
+    human-level error as a proxy for Bayes error.
+
+    Humans are quite good at a lot of tasks. So long as ML is worse than
+    humans, you can:
+    - Get labeled data from humans
+    - Gain insight from manual error analysis: Why did a person get this right?
+    - Better analysis of bias/variance
+*** Avoidable Bias
+    - Human error(~Bayes Error(assuming)): 1%, Training error: 8%, Dev error: 10%
+      * avoidable bias: 7%, variance: 2%
+      * This shows that your algorithm isn't fitting the training set well. So
+        we can reduce the avoidable bias. 
+    - Human error(~Bayes Error(assuming)): 7.5%, Training error: 8%, Dev error: 10%
+      * avoidable bias: 0.5%, variance: 2%
+      * This shows that your algorithm isn't fitting the dev set well. So
+        we can reduce the variance.
+
+    If your NN surpasses human-level performance, your options/ways to improve
+    the model will be less clear as human intutions to improve the model can be wrong.
+*** Error Analysis
+**** Carrying out Error Analysis
+     To carry out error analysis, you should find a set of mislabeled examples in
+     your dev set and look at the mislabeled examples for false positive and
+     false negative and count up the number of errors that fall into various
+     different categoies and chose the categoy that causing more error to improve
+     the model.
+**** Cleaning up Incorrectly Labeled Data
+     DL algorithms are quite robust to few random errors in the training set but
+     not robust to systematic errors. So as long as, the incorrectly labeled
+     examples aren't too far from random, then it is probably ok leave the
+     errors and not spend too much time fixing.
+
+     For the dev set, if the error due to incorrectly labeled data is quite big
+     then it is reasonable to correct dev set data othewise if we want to select
+     between two classifers, we have can't compare them.
+**** Build your first system quickly, then iterate
+*** Mismatched Training/Dev/Test Sets
+**** Training and testing on different distributions
+     More often we find less data that our model supposed to be trained on and huge data
+     from other sources(such from internet). In that case, we should use
+     - Train set: \(\q12\) the data from the main source + the entire data from
+       the other sources
+     - Dev set: \(\q14\) the data from the main source
+     - Test set: \(\q14\) the data from the main source
+**** Bias and Variance with mismatched data distributions
+     When train and test distribution differs then to investigate the errors we
+     extract out another set called training-dev set.
+     * Training-dev Set: Same distribution as training set, but not used for
+       training
+     - Case 1: Training Error: 1%, Training-dev Error: 9%, Dev Error: 10%
+       * This is a variance problem.
+     - Case 2: Training Error: 1%, Training-dev Error: 1.5%, Dev Error: 10%
+       * This is a data miss-match problem.
+     - Case 3: Human-level Error: 0.5%, Training Error: 10%, Training-dev Error: 11%, Dev Error: 12%
+       * This is a avoidable bias problem.
+**** Addressing Data Mismatch
+     - Carry out manual error analysis to try to understand difference between
+       training and dev/test sets.
+     - Make training data more similar; or collect more data similar to dev/test
+       sets.
+
+       One way to make the training data more similar to the dev/test data, is
+       by /Artificial Data Synthesis/. For example, if our test data have
+       background noise in the audio, and training data does not have, then we
+       can artificially generate sounds with background noise in it. But the
+       caveat is if we synthesis a small subset of all possible example, then the NN may overfit it.
+*** Learning From Multiple Tasks
+**** Transfer Learning
+     One of the most powerful ideas in deep learning is that sometimes you can
+     take knowledge the neural network has learned from one task and apply that
+     knowledge to a separate task. This is called Transfered Learning.
+     For example, we can use a trained NN for image recognition for radiology
+     diagnosis.
+     In transfer learning, we delete the last layer of the pre-trained model and
+     add a few more layers in the end and train these new layers(or the whole NN)
+     for the designated task with the new dataset.
+***** When Transfer Learning(\(A\to B\)) Makes Sense
+      - Task A and B have the same input x.
+      - You have alot more data for Task A than Task B.
+      - Lower level features from A could be helpful for learning B.
+**** Multi-task Learning
+     In multi-task learning output is similar to \((1,0,1,1,0,\ldots)_{1\x k}\) i.e. can
+     detect more than one objects. In this case we use the following loss
+     function:
+     \(\sum_{i=1}^{m}\sum_{j=1}^{k}\LL\inp{\h y_{j}^{(i)}, y_{j}^{(i)}}\), where
+     \(\LL\) is the usual logistic loss i.e. \(\LL\inp{\h y_{j}^{(i)},
+     y_{j}^{(i)}} = -y_{j}^{(i)}\log\h y_{j}^{(i)}-(1-y_{j}^{(i)})\log(1-\h y_{j}^{(i)})\). 
+***** When Multi-task Lerning Makes Sense
+       - Training on a set of tasks that could benefit from having lower-level features.
+       - Usually: Amount of data you have for each task is quite similar.
+       - Can train a big enough NN to do well on all the tasks.
+*** End-to-end Deep Learning
+    This approch takes a huge amounts of data. If there is not a huge data
+    available it is always better to divide the problem in smaller/simple
+    subproblems and solve them individually.
+    Problems where end-to-end deep learning works well:
+    - Speech recognition system(10,000 hrs. of data)
+    - Machine translation
+**** Pros and Cons of End-to-end Deep Learning
+***** Pros
+      - Let the data speak, does not force the learning algorithm to use human
+        intution for intermediate constructs
+      - Less hand-designing of components needed
+***** Cons
+      - May need large amount of data
+      - Excludes potentially useful hand-designed components: If we don't have
+        lot of data then the learning algorithm may not learn that much insight
+        from it. So hand designed component can really be a way to inject manual
+        knowledge into the algorithm. 
+* Convolutional Neural Networks
+*** Foundation of Convolutional Neural Networks
+**** Convolution Operation
+     Let \(A\) be a \(n\x n\) matrix and \(F\) be a \(f\x f\) filter. Then
+     convolution of \(A\) by \(F\), \(A \ast F\) is a \((n - f + 1)\x (n - f + 1)\) matrix.
+     - \(3\x 3\) Filter/Kernel for Vertical Edge Detection:
+       \(\bmat{1&0&-1\\1&0&-1\\1&0&-1}\)
+       * vertical edge in a \(3\x 3\)-region is where there are bright pixels on
+         the left and dark pixels on the right. So this is a light to dark
+         detector.
+     - \(3\x 3\) Filter/Kernel for Vertical Edge Detection (Dark to Light):
+       \(\bmat{-1&0&1\\-1&0&1\\-1&0&1}\)
+     - \(3\x 3\) Filter/Kernel for Horizontal Edge Detection:
+       \(\bmat{1&1&1\\0&0&0\\-1&-1&-1}\)
+     - *Sobel Filter:*
+       \(\bmat{1&0&-1\\2&0&-2\\1&0&-1}\)
+     - *Scharr Filter:*
+       \(\bmat{3&0&-3\\10&0&-10\\3&0&-3}\)
+     - In deep learning, we treat these nine numbers as parameters for the
+       learning algorithm to learn using back propagation so that it can capture
+       important statistics of your data than hand coded filters.
+**** Padding
+     Cons of applying convolutional operation on images:
+     1. Output shrinks
+     2. Throw away lot of informations on the edges of the image
+
+     To solve both of these problems we pad the image before convolving. So if we
+     pad the \(n\x n\) image by \(p\) unit before convolving it with a matrix of
+     \(f\x f\), then after applying convolutional operation we have a image of
+     dimension \((n+2p-f+1)\x(n+2p-f+1)\). Generally, we use padding of
+     \(\q{f-1}2\), so that input and output image size are same.
+
+     - Valid Convolution = no padding
+     - Same Convolution = pad so that output size is the same as the input size
+**** Strided Convolution
+     In this case, when performing convolution operation we stride \(s\) unit
+     i.e. step by \(s\) unit. Hence convolution operation results in image of
+     dimension \(\floor{\q{n+2p-f}s+1}\x \floor{\q{n+2p-f}s+1}\).
+**** Convolution over Volume
+     \(A_{m\x n\x p} \ast F_{r \x s \x p} = B_{(m - r + 1)\x (n - s + 1)\x 1}\)
+     [Note: the depth of both \(A\) and \(F\) have to be same.]
+
+**** One Layer of a Convolutional Network
+     Now if we use \(u\) different filters of the same dimension as above then we
+     will get an output of \(u\) different layers i.e. \(B_{(m - r + 1)\x (n -
+     s + 1)\x u}\). Now we add the bias \(b\in \R\) and apply some activation
+     function i.e. \(\s(B_{(m - r + 1)\x (n - s + 1)\x u}+b)\), which will be
+     then used as input in the next layer of the NN.
+    
+     Hence if we have a convolutional layer in the \(l\)-th layer, with
+     - input = \(n_{h}^{[l-1]}\x n_{w}^{[l-1]}\x n_{c}^{[l-1]}\)
+     - filter size = \(f^{[l]}\), i.e. each filter has dimension \(f^{[l]}\x
+       f^{[l]}\x n_{c}^{[l-1]}\)
+     - number of filter in layer \(l\) = \(n_{c}^{[l]}\) 
+     - padding = \(p^{[l]}\)
+     - stride = \(s^{[l]}\)
+     - output = \(n_{h}^{[l]}\x n_{w}^{[l]}\x n_{c}^{[l]}\) where 
+       + \(n_{h}^{[l]}=\floor{\q{n_{h}^{[l-1]}+2p^{[l]}-f^{[l]}}{s^{[l]}}+1}\)
+       + \(n_{w}^{[l]}=\floor{\q{n_{w}^{[l-1]}+2p^{[l]}-f^{[l]}}{s^{[l]}}+1}\)
+     - activations: \(a^{[l]}\) has dimension \(n_{h}^{[l]}\x n_{w}^{[l]}\x
+       n_{c}^{[l]}\). Hence \(A^{[l]}\) has dimension \(m\x n_{h}^{[l]}\x n_{w}^{[l]}\x n_{c}^{[l]}\).
+     - weights: \(f^{[l]}\x f^{[l]}\x n_{c}^{[l-1]}\x n_{c}^{[l]}\)
+     - bias: \(n_{c}^{[l]}\)
+
+**** Typical Example of a ConvNet
+   \(\vx_{39\x39\x3}=\v a^{[0]}\\
+   \xra[f^{[1]}=3,s^{[1]}=1,p^{[1]}=0, 10\tx{ fiters}]{}
+   \v a^{[1]}_{37\x37\x10}\\
+   \xra[f^{[2]}=5,s^{[2]}=2,p^{[2]}=0, 20\tx{ fiters}]{}
+   \v a^{[2]}_{17\x17\x20}\\
+   \xra[f^{[3]}=5,s^{[3]}=2,p^{[3]}=0, 40\tx{ fiters}]{}
+   \v a^{[3]}_{7\x7\x40}\\
+   = \v v_{1960\x 1}
+   \xra[\tx{logistic/softmax}]{}\h y
+ \)
+
+**** Pooling Layers
+     Pooling is fixed function, mostly use to shrink the input size without
+     lossing too much data.
+
+     Hyperparameters for pooling are 
+     - \(f\): filter size
+     - \(s\): stride
+     - \(p\): padding (rarely used)
+      
+     These aren't the parameters learned by the NN, rather these are hardcoded in
+     the algorithm.
+
+     - Max Pooling: return the max value in each sub-convolution operation
+     - Average Pooling: return the average value in each sub-convolution operation
+       
+**** CNN Example
+   \(\vx=\v a^{[0]}_{32\x32\x3}\\
+   \xra[f^{[1]}=5,s^{[1]}=1,p^{[1]}=0, 8\tx{ fiters}]{}
+   \bottom {\top{\v a^{[1]}_{28\x28\x8}}{\tx{CONV 1}}
+   \xra[\tx{max pool}, f^{[1]}=2,s^{[1]}=2]{}
+   \top{\v a^{[1]}_{14\x14\x8}}{\tx{POOL 1}}}{\tx{Layer 1}}\\
+   \xra[f^{[2]}=5,s^{[2]}=1,p^{[2]}=0, 16\tx{ fiters}]{}
+   \bottom {\top{\v a^{[2]}_{10\x10\x16}}{\tx{CONV 2}}
+   \xra[\tx{max pool}, f^{[2]}=2,s^{[2]}=2]{}
+   \top{\v a^{[2]}_{5\x5\x16}}{\tx{POOL 2}}}{\tx{Layer 2}}\\
+   = \v a^{[2]}_{400\x 1}\xra{}
+   \top{a^{[3]}_{120\x1}}{\tx{FC3 (Fully Connected)}}\xra{}
+   \top{a^{[4]}_{84\x1}}{\tx{FC4}}
+   \xra[\tx{logistic/softmax}]{}\h{\v y}_{10\x 1}
+   \)
+
+**** Turning FC layer into Convolutional Layers
+     If we have a NN as follows:
+     
+   \(\vx=\v a^{[0]}_{14\x14\x3}\\
+   \xra[f^{[1]}=5,s^{[1]}=1,p^{[1]}=0, 16\tx{ fiters}]{}
+   \top{\v a^{[1]}_{10\x10\x16}}{\tx{CONV 1}}
+   \xra[\tx{max pool}, f^{[1]}=2,s^{[1]}=2]{}
+   \top{\v a^{[1]}_{5\x5\x16}}{\tx{POOL 1}}\\
+   = \v a^{[1]}_{400\x 1}\xra{}
+   \top{a^{[2]}_{400\x1}}{\tx{FC 2}}
+   \xra[\tx{logistic/softmax}]{}\h{\v y}_{4\x 1}
+   \)
+
+   Then we can totally implemente it convolutionally:
+
+   \(\vx=\v a^{[0]}_{14\x14\x3}\\
+   \xra[f^{[1]}=5,s^{[1]}=1,p^{[1]}=0, 16\tx{ fiters}]{}
+   \top{\v a^{[1]}_{10\x10\x16}}{\tx{CONV 1}}
+   \xra[\tx{max pool}, f^{[1]}=2,s^{[1]}=2]{}
+   \top{\v a^{[1]}_{5\x5\x16}}{\tx{POOL 1}}\\
+   \xra[f^{[2]}=5,s^{[2]}=1,p^{[2]}=0, 400\tx{ fiters}]{}
+   \top{a^{[2]}_{1\x1\x400}}{\tx{CONV 2}}
+   \xra[f^{[3]}=1,s^{[3]}=1,p^{[3]}=0, 400\tx{ fiters}]{}
+   \top{a^{[3]}_{1\x1\x400}}{\tx{CONV 3}}
+   \xra[\tx{logistic/softmax}]{}\h{\v y}_{4\x 1}
+   \)
+
+   
+**** Why Convolutions?
+     - If we use FC layers instead of CONV layers then the number of parameters
+       in each layers will be infeasibly large to be calculated by gradient
+       descent.
+     - *Parameter Sharing:* A feature detector (such as a vertical edge detector)
+       that's useful in one part of the image is probably useful in another part
+       of the image.
+     - *Sparsity of Connections:* In each layer, each output value depends only
+       on a small number of inputs.
+*** Deep Convolutional Models: Case Studies
+**** Case Study
+     A lot of the past few years of computer vision research has been on how to
+     put together these basic building blocks to form effective convolutional
+     neural networks. It turns out that a net neural network architecture that
+     works well on one computer vision task often works well on other tasks as
+     well.
+**** Classic Networks
+     - *LeNet-5:* The goal of LeNet-5 was handwritten digit recognition.
+       \(\vx=\v a^{[0]}_{32\x32\x1}\\
+       \xra[f^{[1]}=5,s^{[1]}=1,p^{[1]}=0, 6\tx{ fiters}]{}
+       \top{\v a^{[1]}_{28\x28\x6}}{\tx{CONV 1}}
+       \xra[\tx{avg pool}, f^{[1]}=2,s^{[1]}=2]{}
+       \top{\v a^{[1]}_{14\x14\x6}}{\tx{POOL 1}}\\
+       \xra[f^{[2]}=5,s^{[2]}=1,p^{[2]}=0, 16\tx{ fiters}]{}
+       \top{\v a^{[2]}_{10\x10\x16}}{\tx{CONV 2}}
+       \xra[\tx{avg pool}, f^{[2]}=2,s^{[2]}=2]{}
+       \top{\v a^{[2]}_{5\x5\x16}}{\tx{POOL 2}}\\
+       = \v a^{[2]}_{400\x 1}\xra{}
+       \top{a^{[3]}_{120\x1}}{\tx{FC3}}\xra{}
+       \top{a^{[4]}_{84\x1}}{\tx{FC4}}
+       \xra[\tx{logistic/softmax}]{}\h \v y
+       \)
+
+       Paper: [LeCun et al., 1998. Gradient-based learning applied to document
+       recognition] (sec. 2, 3)
+     - *AlexNet:*
+       \(\vx=\v a^{[0]}_{227\x227\x3}\\
+       \xra[f^{[1]}=11,s^{[1]}=4,p^{[1]}=0, 96\tx{ fiters}]{}
+       \top{\v a^{[1]}_{55\x55\x96}}{\tx{CONV 1}}
+       \xra[\tx{max pool}, f^{[1]}=3,s^{[1]}=2]{}
+       \top{\v a^{[1]}_{27\x27\x96}}{\tx{POOL 1}}\\
+       \xra[f^{[2]}=5,s^{[2]}=1,p^{[2]}=2, 256\tx{ fiters}]{}
+       \top{\v a^{[2]}_{27\x27\x256}}{\tx{CONV 2}}
+       \xra[\tx{max pool}, f^{[2]}=3,s^{[2]}=2]{}
+       \top{\v a^{[2]}_{13\x13\x256}}{\tx{POOL 2}}\\
+       \xra[f^{[3]}=3,s^{[3]}=1,p^{[3]}=1, 384\tx{ fiters}]{}
+       \top{\v a^{[3]}_{13\x13\x384}}{\tx{CONV 3}}
+       \xra[f^{[4]}=3,s^{[4]}=1,p^{[4]}=1, 384\tx{ fiters}]{}
+       \top{\v a^{[4]}_{13\x13\x384}}{\tx{CONV 4}}\\
+       \xra[f^{[5]}=3,s^{[5]}=1,p^{[5]}=1, 256\tx{ fiters}]{}
+       \top{\v a^{[5]}_{13\x13\x256}}{\tx{CONV 5}}
+       \xra[\tx{max pool}, f^{[5]}=3,s^{[5]}=2]{}
+       \top{\v a^{[5]}_{6\x6\x256}}{\tx{POOL 5}}\\
+       = \v a^{[5]}_{9216\x 1}\xra{}
+       \top{a^{[6]}_{4096\x1}}{\tx{FC6}}\xra{}
+       \top{a^{[7]}_{4096\x1}}{\tx{FC7}}
+       \xra[\tx{logistic/softmax}]{}\h {\v y}_{1000\x 1}
+       \)
+       
+       Paper: [Krizhevsky et al., 2012. ImageNet classification with deep
+       convolutional neural networks]
+     - *VGG-16 Net:*
+        \(\vx=\v a^{[0]}_{224\x224\x3}
+       \xra[f^{[1]}=3,s^{[1]}=1,p^{[1]}=1, 64\tx{ fiters}]{}
+       \top{\v a^{[1]}_{224\x224\x64}}{\tx{CONV 1}}\\
+       \xra[f^{[2]}=3,s^{[2]}=1,p^{[2]}=1, 64\tx{ fiters}]{}
+       \top{\v a^{[2]}_{224\x224\x64}}{\tx{CONV 2}}
+       \xra[\tx{max pool}, f^{[2]}=2,s^{[2]}=2]{}
+       \top{\v a^{[2]}_{112\x112\x64}}{\tx{POOL 2}}\\
+       \xra[f^{[3]}=3,s^{[3]}=1,p^{[3]}=1, 128\tx{ fiters}]{}
+       \top{\v a^{[3]}_{112\x112\x128}}{\tx{CONV 3}}\\
+       \xra[f^{[4]}=3,s^{[4]}=1,p^{[4]}=1, 128\tx{ fiters}]{}
+       \top{\v a^{[4]}_{112\x112\x128}}{\tx{CONV 4}}
+       \xra[\tx{max pool}, f^{[4]}=2,s^{[4]}=2]{}
+       \top{\v a^{[4]}_{56\x56\x64}}{\tx{POOL 4}}\\
+       \xra[f^{[5]}=3,s^{[5]}=1,p^{[5]}=1, 256\tx{ fiters}]{}
+       \top{\v a^{[5]}_{56\x56\x256}}{\tx{CONV 5}}
+       \xra[f^{[6]}=3,s^{[6]}=1,p^{[6]}=1, 256\tx{ fiters}]{}
+       \top{\v a^{[6]}_{56\x56\x256}}{\tx{CONV 6}}\\
+       \xra[f^{[7]}=3,s^{[7]}=1,p^{[7]}=1, 256\tx{ fiters}]{}
+       \top{\v a^{[7]}_{56\x56\x256}}{\tx{CONV 7}}
+       \xra[\tx{max pool}, f^{[7]}=2,s^{[7]}=2]{}
+       \top{\v a^{[7]}_{28\x28\x256}}{\tx{POOL 7}}\\
+       \xra[f^{[8]}=3,s^{[8]}=1,p^{[8]}=1, 512\tx{ fiters}]{}
+       \top{\v a^{[8]}_{28\x28\x512}}{\tx{CONV 8}}
+       \xra[f^{[9]}=3,s^{[9]}=1,p^{[9]}=1, 512\tx{ fiters}]{}
+       \top{\v a^{[9]}_{28\x28\x512}}{\tx{CONV 9}}\\
+       \xra[f^{[10]}=3,s^{[10]}=1,p^{[10]}=1, 512\tx{ fiters}]{}
+       \top{\v a^{[10]}_{28\x28\x512}}{\tx{CONV 10}}
+       \xra[\tx{max pool}, f^{[10]}=2,s^{[10]}=2]{}
+       \top{\v a^{[10]}_{14\x14\x512}}{\tx{POOL 10}}\\
+       \xra[f^{[11]}=3,s^{[11]}=1,p^{[11]}=1, 512\tx{ fiters}]{}
+       \top{\v a^{[11]}_{14\x14\x512}}{\tx{CONV 11}}
+       \xra[f^{[12]}=3,s^{[12]}=1,p^{[12]}=1, 512\tx{ fiters}]{}
+       \top{\v a^{[12]}_{14\x14\x512}}{\tx{CONV 12}}\\
+       \xra[f^{[13]}=3,s^{[13]}=1,p^{[13]}=1, 512\tx{ fiters}]{}
+       \top{\v a^{[13]}_{14\x14\x512}}{\tx{CONV 13}}
+       \xra[\tx{max pool}, f^{[13]}=2,s^{[13]}=2]{}
+       \top{\v a^{[13]}_{7\x7\x512}}{\tx{POOL 13}}\\
+       = \v a^{[13]}_{25088\x 1}\xra{}
+       \top{a^{[14]}_{4096\x1}}{\tx{FC 14}}\xra{}
+       \top{a^{[15]}_{4096\x1}}{\tx{FC 15}}
+       \xra[\tx{logistic/softmax}]{}\h {\v y}_{1000\x 1}
+       \)
+      
+       Paper: [Simonyan and Zisserman 2015. Very deep convolutional networks for
+       large-scale image recognition]
+       
+**** Residual Networks(ResNet)
+     Very, very deep neural networks are difficult to train because of vanishing
+     and exploding gradient types of problems. To solve this problem, we
+     introduced skip connections which allows you to take the activation from
+     one layer and suddenly feed it to another layer even much deeper in the
+     neural network. And using that, you'll build ResNet which enables you to
+     train very, very deep networks. Sometimes even networks of over 100
+     layers. 
+
+     For a plain network we have the following structure:
+
+     \(\v a^{[l]}\to {W^{[l+1]}}^T\v a^{[l]}+\v b^{[l+1]}=\v
+     z^{[l+1]}\to g^{[l+1]}(\v z^{[l+1]})=\v a^{[l+1]}\to{W^{[l+2]}}^T\v
+     a^{[l+1]}+\v b^{[l+2]}=\v z^{[l+2]}\to g^{[l+2]}(\v z^{[l+2]})=\v
+     a^{[l+2]}$\)
+
+     In a residual network we change the structure a bit:
+
+     \(\v a^{[l]}\to {W^{[l+1]}}^T\v a^{[l]}+\v b^{[l+1]}=\v
+     z^{[l+1]}\to g^{[l+1]}(\v z^{[l+1]})=\v a^{[l+1]}\to{W^{[l+2]}}^T\v
+     a^{[l+1]}+\v b^{[l+2]}=\v z^{[l+2]}\to g^{[l+2]}(\v z^{[l+2]} +\boxed{a^{[l]}})=\v
+     a^{[l+2]}$\)
+
+     Now note that, \(\v a^{[l+2]}=g^{[l+2]}(\v z^{[l+2]}+a^{[l]}) =
+     g^{[l+2]}({W^{[l+2]}}^{T}a^{[l+1]}+\v b^{[l+2]}+\v a^{[l]}).\) Now if for
+     \(L_{2}\) regularization or for weight decay or for some other reason
+     \(W^{[l+2]}\to O\), and assume \(\v b^{[l+2]}\to \v 0\), then \(\v
+     a^{[l+2]}=g^{[l+2]}(\v a^{[l]})\) and if we use ReLu activation function
+     then \(\v a^{[l+2]}=\v a^{[l]}\). This shows that residual networks can
+     skip connections or learn the identity function, and thus adding this two
+     layers/residual block does not hurt NN's ablity to learn.
+
+     Above we assumed that, \(\v z^{[l+2]}\) and \(\v a^{[l+2]}\) have the same
+     dimension. In case they aren't same, we do the following: \(\v
+     z^{[l+2]}+W_{s}\v a^{[l]}\), where \(W_{s}\) is a matrix of appropriate
+     dimension whose entries can be learnable parameters or a fixed matrix that
+     just implements 0-padding to \(a^{[l]}\).
+     
+     In very deep plain nets, it is very difficult for the NN to chose
+     parameters that learns the identity function and thus a lot of layers end
+     up making the result worst.
+
+     Though in theory training should decrease even if you increase number of
+     layers but in reality it decrease for a while then increase if we use plain
+     networks. But if we use ResNets then no matter how many layers we have the
+     training error always decrease.
+
+     "Why ResNets Work" video has a ResNet structure for image recognition.
+
+     Paper: [He et al., 2015. Deep residual networks for image recognition]
+
+**** Networks in Networks and \(1\x 1\) Convolutions
+     If we apply \(1\x1\)-convolution on a \(m\x n\x p\) volume we get a \(m\x
+     n\) matrix, whose each entry is ReLu(sum(elementwise multiplication of the
+     corresponding slice)). That's why it is called Networks in Networks.
+
+     Paper: [Lin et al., 2013. Network in network]
+**** Inception Network
+     In Inception network, we use layers in which we use convolutions and pooling of
+     different sizes so that the resulting volume's width and height remain the
+     same as the input. For example,
+
+     \(a^{[l]}_{28\x 28\x192}\xra[\substack{1\x1 \tx{ same conv}, 64\\3\x3 \tx{
+     same conv}, 128\\5\x5 \tx{ same conv},32 \\3\x3\tx{ same max-pools with }s=1, \tx{ and }1\x1 \tx{ conv, 32}}]{} = \v
+     a^{[l+1]}_{28\x28\x(64+128+32+32)}\)
+
+     One problem with using many filters is the computational cost. For example,
+     in the following layer
+
+     \(a^{[l]}_{28\x28\x192}\xra[5\x5\tx{ same conv}, 32]{}\v
+     a^{[l+1]}_{28\x28\x32}\)
+     
+     Hence we have to calculate \(28\x28\x32\) numbers and for each number to
+     calculate we need to perform \(5\x5\x192\) multiplications. Hence Total
+     numer of multiplications is \(28\x28\x32\x5\x5\x192=120\) million. To
+     reduce the number of multiplications we do the following:
+
+      \(a^{[l]}_{28\x28\x192}\xra[1\x1\tx{ conv}, 16]{}\v
+     a^{[l+1]}_{28\x28\x16} \xra[5\x5\tx{ same conv}, 32]{} \v a^{[l+1]}_{28\x28\x32}\)
+
+     Here total number of multiplications is
+     \(28\x28\x16\x1\x1\x192+28\x28\x32\x5\x5\x16 = 12.4\) million. The middle
+     layer is called a *bottleneck layer*.
+
+     Example of a Inception Network Layer:
+     \(a^{[l]}_{28\x 28\x192}\xra[\substack{1\x1 \tx{ same conv},
+     64\\\tx{bottleneck:$1\x1$ conv, 96},\quad 3\x3 \tx{
+     same conv}, 128\\\tx{bottleneck:1$\x 1$ conv, 16},\quad5\x5 \tx{ same
+     conv},32 \\3\x3\tx{ same max-pools with }s=1, \tx{ and }1\x1 \tx{ conv, 32}}]{} = \v
+     a^{[l+1]}_{28\x28\x256}\)
+
+     Paper: [Szegedy et al., 2014, Going Deeper with Convolutions] 
+**** Practical Aspects 
+     - In computer vision most of time we use transfer learning.
+     - data augmentation techinques: mirroring, random cropping, rotation,
+       scaling, color shifting
+*** Object Detection
+**** Detection Algorithm
+***** Object Localization
+      - Image Classification: Classify one object in the image
+      - Classification with Localization: Classify one object and put a bounding
+        box around it
+      - Detection: Classify multiple objects and put bounding boxes around them
+
+
+      For object localization problem we need target label \(y=[p_{c},
+      b_{x},b_{y},_{w},b_{h},c_{1},c_{2},c_{3}]\) where, \(p_{c}\) is the probability
+      that there is any object in the given image, \(b_{x},b_{y},b_{w},b_{h}\) are top-left
+      coordinate, width and height of the bounding box respectively and
+      \(c_{i}\) is the probability that the object is of \(c_{i}\) category.
+
+      Loss Function: \(\LL(\h{\v y},\v y)=\case{\norm{\h{\v y}-\v y}^{2}
+      &\tx{if }y_{0}=1\\(\h y_{0}-y_{0})^{2}&\tx{if }y_{0}=0.}\)
+***** Landmark Detection
+      If we want our NN to recognize some landmarks such as bounding box around a
+      object or person's pose or person's facial expression, we need train the
+      NN to output \(n\)-landmark positions
+      \((p_{c},l_{1_{x}},l_{1_{y}},\ldots,l_{n_{x}},l_{n_{y}})\) with \(p_{c}\)
+      being the probability that the object is present in the image and we have to create
+      appropriately labeled data to train the NN.
+**** Object Detection: Sliding Windows Detection
+     Here, to build a object detection algorithm we first have to create a
+     labeled training set with closely cropped images for the objects to be
+     detected. Then with this training set, train a ConvNet that outputs the
+     label of the object. Once you've trained this ConvNet, we can use this for
+     sliding windows detection.
+
+     *Sliding Windows Detection:* If we have a test image, we start by picking a
+      certain window size which we will then use to crop test image and feed it to
+      the ConvNet and in each iteration we will shift the window a bit and continue
+      the process untill you exhaust all the positions in the image. Now repeat
+      the same with a bigger window and resize the cropping and feed that to the
+      ConvNet and so on.
+
+      If we proceed like this the hope is if there is an object in the image and
+      we use appropriately sized window, the ConvNet will recognize it. But this
+      algorithm is computationally very expensive as we are feeding each crop
+      independently. But it can be implemented convolutionally which is much
+      more efficent.
+
+      *Convolutional implementation of Sliding Windows Detection:*
+      [[./img/sliding windows.png]]
+**** Bounding Box Predictions: YOLO Algorithm??
+     In this algorithm we place a fine grid(\(3\x3\) or \(19\x19\)) on the image
+     and pass each grid image to the ConvNet to predict if the contain an object
+     and its bounding box. This can be implemented convolutionally, outputting
+     \(3\x3\x8\) or \(19\x19\x8\) tensor.
+     
+     If the object shares multiple grids then the bounding box is measure can be
+     greater than 1.
+
+     Paper: [Redmon et al., 2015, You Only Look Once: Unified real-time object detection]
+**** Intersection Over Union(IoU)
+     IoU is a confidence measure that tells if the measure of bounding boxes is
+     more or less accurate. The definition of IoU is as follows:
+     \[\tx{IoU} = \q{\tx{Union of all the predicted bounding
+     boxes}}{\tx{Intersection of all the predicted bounding boxes}}\]
+     If \(\tx{IoU}\ge 0.5\) then it is considered bounding boxes are more or
+     less accurate.
+**** Non-max Suppression
+     With YOLO algorithm, many grids can output positive detection for the same
+     object, and so we get more than one bounding boxes for each objects. So get
+     one bounding box per object we use non-max suppression.
+
+     *Non-max Suppression Algorithm:*
+     Let BBL1 be all the bounding boxes of class 1 and FBBL1 be the final bounding box
+     list for each objects.
+     Delete all the bouding boxes from BBL1 with probability less than 0.6.
+     While BBL1 is not empty:
+       1. Chose the bounding box \(B\) with highest probability and append it in
+          FBBL1.
+       2. Supress/Delete all the bounding boxes from BBL1 that has
+          \(\tx{IoU}\ge0.5\) with \(B\).
+
+    For each class use non-max suppression to generate the final predictions.
+**** Anchor Boxes
+     Handle Two objects not very scaleable. Look at the details in the video.
+     
+*** Special Applications: Face Recognition and Neural Style Transfer
+**** Face Recognition
+***** Face Verification vs Face Recognition
+      - *Face Verification:*
+	+ *Input:* image, name/ID
+	+ *Output:* whether the input image is that of the claimed person
+      - *Face Recognition:*
+	+ Has a database of \(k\) persons.
+	+ *Input:* image
+	+ *Output:* ID if the image is any of the \(k\) persons (or "not recognized")
+***** One Shot Learning
+      For most face recognition application, we need to be able to recognize a
+      person given just one single image. So, to solve this problem we need to
+      find a ""similarity" function i.e. a metric \(d\) such that given enc1 and
+      enc2, encodings of two images, \[\case{ d(\tx{enc1, enc2})\le \t&\tx{if
+      both images are of the same person}\\ d(\tx{enc1, enc2})> \t&\tx{if both images
+      are of the different persons}.  }\]
+***** Siamese Network
+      In Siamese Network we use a CNN followed by some FC layers to output a
+      encoding of an image (a feature vector of dim 128). To make this encodings
+      good for face recognition we use *triplet loss* function to train in CNN.
+***** Triplet Loss
+      In triplet loss function we use three parameters:
+      1. Anchor(\(A\)): encoding of an image of a person's face
+      2. Positive(\(P\)): encoding of a different image of the same person's face
+      3. Negative(\(N\)): encoding of an image of a different person's face
+
+      *Loss function:*
+      \begin{align*}
+      \LL(A, P, N) &= \max{(d(A, P) - d(A, N) + \a, 0)}\\
+      & = \max{(\norm{A - P}^{2} - \norm{A - N}^{2} + \a,0)}
+      \end{align*}
+      where \(\a>0\) is called a margin. We have taken \(\a\) so that encodings
+      of images be non trivial i.e. \(\tx{enc(img)}\ne \v 0\).
+
+      If we have training set of \(10,000\) pictures of \(1,000\) persons with
+      10 different images of each person on average, we can generate these
+      triplets \(\set{(A^{(i)},P^{(i)},N^{(i)})}_{i=1}^{m}\) and train the NN with cost function:
+      \[J = \sum_{i=1}^{m}\LL(A^{(i)},P^{(i)},N^{(i)}).\]
+
+      It turns out that if we chose \(A,P,N\) randomly, then NN can easily
+      optimize the cost function since in randomly chosen examples most of the
+      examples will have people will have vastly different facial features. But
+      to make the NN much robust we need to find difficult examples so that it
+      can identify the minute details. To do that we need to pick examples for
+      which \(d(A,P)+\a\approx d(A,N)\).
+
+      *Papers:*
+      1. Taigman et al., 2014, DeepFace closing the gap to human level performance
+      2. Schroff et al., 2015, FaceNet: A unified embedding for face recognition
+         and clustering
+***** Face Verification and Binary Classification
+      Another way to solve face recognition is by using binary
+      classification. In this techinque, we need to create a training set
+      (A,B,i) where A, B are two images and i is 1 if A and B are of the same
+      persons and 0 if not. Here we use a Siamese Network for outputting two
+      encodings for two input images and in the last layer we take
+      \(L_{1}\)-norm of these two vectors and pass it into a binary
+      classification algorithm.
+      [[./img/face recognition with binary classification.png]]
+**** Neural Style Transfer
+     *Problem:* Here the problem formulation is given a content image \(C\) and a style
+     image \(S\) the goal is to generate a image \(G\) with the style of \(S\)
+     applied on \(C\).
+
+     *Cost Function:*
+     \[J(G) = \a J_{\tx{content}}(C,G) + \b J_{\tx{style}}(S,G)\]
+     where \(\a,\b\) are the relative weighting.
+
+     - Say you use hidden layer \(l\) to compute content cost.
+     - Use pre-trained ConvNet. (E.g., VGG network)
+     - Let \(a^{[l](C)}\) and \(a^{[l](G)}\) be the activation of layer \(l\) on
+       the images.
+     - If \(a^{[l](C)}\) and \(a^{[l](G)}\) are similar, both images have
+       similar content. So we define
+       \[J_{\tx{content}}(C,G)=\norm{a^{[l](C)}-a^{[l](G)}}^{2}.\]
+     - Now let's say you are using layer \(l\)'s activation to measure
+       "style". We define style as correlation(unnormalized cross covariance)
+       between activations across channels. Hence we define
+       \[J^{[l]}_{\tx{style}}(S,G)=\q1{(2n_{H}^{[l]}n_{W}^{[l]}n_{C}^{[l]})^{2}}\sum_{k}^{n_{C}^{[l]}}\sum_{k'}^{n_{C}^{[l]}}\inp{G_{kk'}^{[l](S)}-G_{kk'}^{[l](G)}}^{2}\]
+       where
+       \[G_{kk'}^{[l](G)}=\sum_{i=1}^{n_{H}^{[l]}}\sum_{j=1}^{n_{W}^{[l]}}a_{i,j,k}^{[l](G)}a_{i,j,k'}^{[l](G)}.\]
+       Now to get a more visually pleasing result we can take the style cost
+       over all the layers i.e. \(J_{\tx{style}}(S,G)=\sum_{l}J^{[l]}_{\tx{style}}(S,G)\).
+       
+     *Papers:*
+     1. Zeiler and Fergus., 2013, Visualizing and understanding convolutional
+        networks
+     2. Gatys et al., 2015. A neural algorithm of artistic style 
+**** 1D and 3D Generalizations
+     As we convolve 2D images with 2D matrix in a CNN, we can do the same with
+     1D and 3D data with 1D matrix and 3D matrix for convolution to build a CNN.
+     
+     For example, 
+     1. in ECG we use 1D data.
+     2. in motion detection we use 3D data where each slice is an image in time.
+     3. CT scan 3D data of different slice of the body.
+* Sequence Models
+*** Recurrent Neural Networks
+**** Why Sequence Models
+     *Examples of Sequence Data:*
+     - Speech recognition : speech -> text
+     - Music generation : \(\ns\) -> music
+     - Sentiment classification : 'There is nothing to like in this movie.' -> 1 star rating
+     - DNA sequence analysis : AGCCCCTGTGAAACTAG -> determine which part
+       correspond to a particular protein
+     - Machine translation : Voulez-vous chanter avec moi? -> Do you want to
+       sing with me?
+     - Video activity recognition : sequence of images -> determine the action happening
+     - Name entity recognition : Yesterday, Harry Potter met Hermoine
+       Granger. -> Harry Potter, Hermoine Granger
+**** Notation
+     Let \(\v x, \v y\) be the individual sequence example. Here we the \(i\)-th
+     component of \(\v x\) and \(\v y\) by \(\v x^{\ip{i}}\) and \(\v
+     y^{\ip{i}}\) respectively. Also, \(T_{x},T_{y}\) denote the lengths of \(\v
+     x\) and \(\v y\) respectively.
+
+     In NLP, to represent words we first chose a list of words i.e. a dictionary
+     and then respresent each word as an one-hot-vector corresponding to the
+     index of the word in that dictionary(this is called tokenizing). Thus, if
+     \(\v x\) is a sentence, then \(\v x^{\ip{i}}\) represent the \(i\)-th word
+     in the sentence which is an one-hot-vector corresponding the selected
+     dictionary.
+
+     We include an entity \(\ip{\tx{unk}}\) in our dictionary to represet any unkown word.
+**** Recurrent Neural Network Model
+***** Problems in using standard NN
+      - Inputs, outputs can be different lengths in different examples.
+      - Doesn't share features learned across different positions of text. (For
+	example, 'Harry' appearing as the first word in the sentence, 'he'
+	appearing afterward, standard NN wouldn't able to learn that 'Harry' is
+	a male character.)
+
+      RNN solves these problems. Below is the RNN architecture:
+      [[./img/rnn.png]]
+***** Forward propagation in RNN
+      We start with \(\v a^{\ip{0}}=\v 0\) or a vector with random initialization and at \(t\)-timestamp we have
+      \begin{align*}
+      \v a^{\ip{t}}&=g_{1}(W_{aa}\v a^{\ip{t-1}}+W_{ax}\v x^{\ip{t}}+b_{a}) =
+      g_{1}(W_{a}[\v a^{\ip{t-1}}, \v x^{\ip{t}}]^{t}+b_{a})\\
+      \h{\v y}^{\ip{t}}&=g_{2}(W_{ya}\v a^{\ip{t}}+b_{y})
+      \end{align*}
+      Here \(W_{a}=[W_{aa}|W_{ax}]\).
+      Generally we use tanh or ReLu activations for \(g_{1}\) and depending on
+      what output \(y\) is, for example if it a classification task we use softmax
+      for \(g_{2}\). 
+***** Backpropagation through time
+      \[\LL(\h{\v y},\v y) = \sum_{t=1}^{T_{y}}\LL^{\ip{t}}\inp{\h{\v y}^{\ip{t}},\v
+      y^{\ip{t}}}\]
+***** Different Types of RNN
+****** Many-to-many
+******* Input and output lengths are same
+	[[./img/many-to-many(same).png]]
+	*Applications:*
+	- Name entity recognition
+******* Input and output lengths are different
+	[[./img/many-to-many(different).png]]
+	*Applications:*
+	- Machine translation
+****** Many-to-one
+       [[./img/many-to-one.png]]
+       *Applications:*
+	- Sentiment Analysis
+****** One-to-many
+       [[./img/one-to-many.png]]
+       *Applications:*
+	- Music generation
+**** Language Model and Sequence Generation
+     *Language Model:* Language model gives the distribution of the vocabulary
+     being the next word given a sequence of words i.e. a part of a sentence.
+
+     To build a language model with an RNN we use a large corpus of english text
+     as our training set i.e. training set is \(\set{\v 0, \v y^{(i)}}\) where
+     \(\v y^{(i)}\) is a tokenized sentence. Here we can also
+     include '.', ',', etc. in our vocabulary/dictionary. Following is the
+     language model architecture:
+
+     [[./img/language model.png]]
+     
+     Here \(\h{\v y}^{\ip{1}}=P(\v y^{\ip{1}})\) and \(\h{\v y}^{\ip{i}} = P(\v
+     y^{\ip{i}}|\v y^{\ip{1}}, \ldots, \v y^{\ip{i-1}})\) for \(i\ge2\).
+
+     *Sampling Novel Sequences:* After training the NN we can generate novel
+     sequences of words. First we generate the distribution of the vocabulary
+     being the first word and chose a word from the distribution and feed it to
+     the next timestamp and generate the distribution of the vocabulary being the
+     second word and chose one word from it and so on until it reaches <EOS>
+     i.e. '.' or we can decide to sample 20/100 consecutive words.
+
+     *Character Level Language Model:* In this case our vocabulary is built of characters
+     and punctuations to represent text i.e. [a,..,z, A..Z, 0,..9, , . , ;
+     ,...] and use the above process to train the RNN.
+
+     In character level language model(CLLM), there is no problem of having an unknown
+     word, whereas in word level language model for unknown words we have to
+     assign it to the <UNK> token. On the other hand, in CLLM, we will need a
+     much longer sequences and so it won't be as good as WLLM as it needs to
+     capture long range dependencies how to earlier parts of the sentence also
+     affect the later part of the sentence. Also CLLM are computationally
+     expensive to train.
+**** Vanishing Gradients with RNNs
+     Consider the two sentences:
+     - The /cat/, which already ate ..., /was/ full.
+     - The /cats/, which already ate ..., /were/ full.
+     
+     These examples show that language can have very long-term dependencies,
+     where a word much earlier in the sentence can affect what needs to come
+     much later in the sentence. But the basic RNNs aren't very good at
+     capturing very long-term dependencies. With a very deep RNN, gradient
+     descent would have a very hard time propagating back to the earlier layers
+     to affect the weights of the earlier layers, because of the vanishing
+     gradients problem. Exploding gradient can be addressed by gradient clipping
+     i.e. if gradient vectors are too big rescale them i.e. clip according to
+     some maximum value. So the basic RNN model has many local influences but
+     not far reaching influences.
+**** Gated Recurrent Unit(GRU)
+     [[./img/gru.png]]
+     
+     Here, \(\v c^{\ip{t}}=\v a^{\ip{t}}\) and \(c\) denotes "memory cell".
+     \begin{align*}
+     &\tl{\v c}^{\ip{t}}=\tanh(W_{c}[\G_{r}\ast\v c^{\ip{t-1}},\v x^{\ip{t}}]'+b_{c})\\
+     &\G_{u}=\s(W_{u}[\v c^{\ip{t-1}},\v x^{\ip{t}}]'+b_{u})\\
+     &\G_{r}=\s(W_{r}[\v c^{\ip{t-1}},\v x^{\ip{t}}]'+b_{r})\\
+     &\v c^{\ip{t}}=\G_{u}\ast\tl{\v c}^{\ip{t}}+(1-\G_{u})\ast \v c^{\ip{t-1}}
+     \end{align*}
+     where \(\tl{\v c}\) is a candidate term for \(\v c\) and \(\ast\) is
+     elementwise multiplication and \(\G_{u}\) is the update gate its value
+     determine how much information in the \(i\)-bit, from the previous
+     timestamp will flow in the next timestamp. So sort of works like a memory
+     unit. Thus GRU is capable of handling long range dependencies. Also the
+     term \(\G_{r}\) is computing how relevant is \(\v c^{\ip{t-1}}\) is
+     computing the next candidate for \(\v c^{\ip{t}}\) i.e. \(\tl{\v
+     c}^{\ip{t}}\).
+
+     In academic literature \(\tl h=\tl{\v c},u=\G_{u},r=\G_{r},h=\v c\).
+    
+     *Papers:*
+     1. Cho et al., 2014. On the properties of neural machine translation:
+        Encoder-decoder approaches
+     2. Chung et al., 2014. Empirical Evaluation of Gated Recurrent Neural
+        Networks on Seuence Modeling
+**** Long Short Term Memory(LSTM)
+     LSTMs are more powerful and more general version than GRU to learn very
+     long range connections in a sequence but LSTMs are computationally a bit
+     heavy.
+     [[./img/lstm.png]]
+     \begin{align*}
+     &\tl{\v c}^{\ip{t}}=\tanh(W_{c}[\v a^{\ip{t-1}},\v x^{\ip{t}}]'+b_{c})\\
+     &\G_{u}=\s(W_{u}[\v a^{\ip{t-1}},\v x^{\ip{t}}]'+b_{u})\\
+     &\G_{f}=\s(W_{f}[\v a^{\ip{t-1}},\v x^{\ip{t}}]'+b_{f})\\
+     &\G_{o}=\s(W_{o}[\v a^{\ip{t-1}},\v x^{\ip{t}}]'+b_{o})\\
+     &\v c^{\ip{t}}=\G_{u}\ast\tl{\v c}^{\ip{t}}+\G_{f}\ast \v c^{\ip{t-1}}\\
+     &\v a^{\ip{t}}=\G_{o}\ast \tanh(\v c^{\ip{t}}).
+     \end{align*}
+
+     /Peephole connection:/ If we also include \(\v c^{\ip{t-1}}\) in \([\v a^{\ip{t-1}},\v x^{\ip{t}}]\).
+
+     *Paper*: Hochreiter & Schmidhuber 1997. Long short-term memory
+**** Bidirectional RNN(BRNN)
+     [[./img/urnn.png]]
+     In above case of a name entity recognition it is often not enough with the
+     first 3 word of the sentence to predict \(\h y^{\ip{3}}=1\) with a
+     unidirectional RNN. we need more information. A BRNN fixes this
+     issue. Below is the BRNN architecture.
+     [[./img/brnn.png]]
+**** Deep RNNs
+     The different versions of RNNs  will already work quite well by
+     themselves. But for learning very complex functions sometimes is useful to
+     stack multiple layers of RNNs together to build even deeper versions of
+     these models. Below is two types of Deep RNN architectures.
+     [[./img/deep_rnns.png]]
+
+     Each temporal cell is calculated as follows. For example,
+     \[\v a^{[2]\ip{3}}=g(W_{a}^{[2]}[\v a^{[2]\ip{2}},\v a^{[1]\ip{3}}]'+b_{a}^{[2]})\]
+*** Natural Language Processing & Word Embeddings
+**** Introduction to Word Embedding
+***** Word Represention
+      If we have a vocabulary of words say V = [a, aaron, ..., zulu, <UNK>],
+      then with the one-hot represention of words \(e_{1},e_{2},\ldots\), ML algorithms cannot
+      understand the relation of it with other words. For example, if we train a
+      NN to predict the next word with example
+      #+BEGIN_QUOTE
+      I want a glass of orange _____. (juice)
+      #+END_QUOTE
+      and then ask it to predict appropriate word for the following example
+      #+BEGIN_QUOTE
+      I want a glass of apple _____.
+      #+END_QUOTE       
+      It may not predict juice because it didn't know the relation of apple to
+      orange. This is because the inner product between two one-hot vectors is
+      always 0. So if we represent words based on it's features(say 300
+      features) we can avoid this problem and NN will generalize well.
+
+      *Featurized Represention: Word Embedding*
+      |        |  Man | Woman |  King | Queen | Apple | Orange |
+      |--------+------+-------+-------+-------+-------+--------|
+      | Gender |   -1 |     1 | -0.95 |  0.97 |  0.00 |   0.01 |
+      | Royal  | 0.01 |  0.02 |  0.93 |  0.95 | -0.01 |   0.00 |
+      | Age    | 0.03 |  0.02 |   0.7 |  0.69 |  0.03 |  -0.02 |
+      | Food   | 0.09 |  0.01 |  0.02 |  0.01 |  0.95 |   0.97 |
+      | Size   |      |       |       |       |       |        |
+      | Cost   |      |       |       |       |       |        |
+      | Noun   |      |       |       |       |       |        |
+      | ...    |      |       |       |       |       |        |
+
+      For visualizing word embedding we can use t-SNE algorithm to project high
+      dimensional data onto 2d plane.
+      
+      *Papers:* van der Maaten and Hinton., 2008. Visualizing data using t-SNE
+***** Using Word Embeddings
+      
+**** Learning Word Embeddings: word2vec & GloVe
+**** Applications using Word Embeddings
+*** Sequence Models & Attention Mechanism

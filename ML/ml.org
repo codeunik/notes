@@ -1,0 +1,1084 @@
+:PROPERTIES:
+#+TITLE: Machine Learning
+#+AUTHOR: Partha Ghosh
+#+SETUPFILE: ~/org/headers.org
+
+#+LaTex_HEADER:\usepackage{booktabs}
+#+LaTex_HEADER:\newcommand{\vth}{\bm{\th}}
+#+LaTex_HEADER:\newcommand{\vx}{\v x}
+#+LaTex_HEADER:\newcommand{\vy}{\v y}
+#+LaTex_HEADER:\renewcommand{\vep}{\bm{\ep}}
+#+LaTex_HEADER:\newcommand{\hvth}{\hat{\bm{\th}}}
+#+LaTex_HEADER:\newcommand{\vmu}{\bm{\mu}}
+
+:END:
+
+* Linear Algebra
+** Linear Operators
+*** Eigenvector
+    Let $T:V\to V$ be a linear operator and let $v\in V$ be a nonzer vector such
+    that $Tv=\l v$ for some $\l\in\R$. Then $v$ is called an *eigenvector* and
+    $\l$ is known as the *eigenvalue* corresponding to this eigenvector.
+**** Theorem
+     Similar matrices (\(A'=P^{-1}AP\)) have the same eigenvalues.
+**** Theorem
+     + Let \(T:V\to V\) be a linear operator. Then the matrix of \(T\) w.r.t. a
+       basis \(\bf B=(v_{1}, \ldots, v_{n})\) is diagonal iff each of the basis
+       vector \(v_j\) is an eigenvector.
+     + An \(n\x n\) matrix \(A\) is similar to a diagonal matrix iff there is a
+       basis of \(F^{n}\) that consists of eigenvectors.
+**** Eigendecomposition
+     Suppose that a matrix \(\bf A\) has \(n\) linearly independent eigenvectors
+     \(\set{v_{1}, \cdots, v_{n}}\) with corresponding eigenvalues
+     \(\set{\lambda_{1}, \ldots, \lambda_{n}}\). Then we have
+\begin{align*}
+&A[v_{1}, \cdots, v_{n}] = [v_{1}, \cdots, v_{n}]\diag(\lambda_{1},\ldots,\lambda_{n})\\
+\im & AV=\diag(\lambda_{1},\ldots,\lambda_{n})\\
+\im & A = V\diag(\lambda_{1},\ldots,\lambda_{n})V^{-1} = V\L V^{-1}.
+\end{align*}
+
+     If \(A\) is real symmetric matrix then we have $A=Q\L Q^{T}$ where \(Q\) is
+     an orthogonal matrix composed of eigenvectors of \(A\). 
+*** Singular Value Decomposition
+    Let \(A\) be an \(m\x n\) matrix and let \(u_{i}\) be an eigenvector of
+    \(AA^{T}\) with eigenvalue \(\s_{i}^{2}\) since it is a positive semidefinite
+    matrix i.e. its eigenvalues are nonnegative. Then we have,
+\begin{align*}
+&AA^{T}u_{i}=\s_{i}^{2}u_{i}\\
+\im & A\inp{\q{A^{T}u_{i}}{\s_{i}}}=\s_{i} u_{i}\\ 
+\im & Av_{i}=\s_{i} u_{i}.
+\end{align*}
+Then \(\s_{i}\ge0\) is called a singular value (square root of eigenvalues of
+\(AA^{T}\)) and \(u_{i}\) is called a (left) singular vector (eigenvectors of
+\(AA^{T}\)) and \(v_{i}\) is called a (right) singular vector (eigenvectors of
+\(A^{T}A\)).
+
+Also, singular vectors are orthonormals since,
+\[v_{i}^{T}v_{j}=\inp{\q{A^{T}u_{i}}{\s_{i}}}^{T}\inp{\q{A^{T}u_{j}}{\s_{j}}}=\q{u_{i}^{T}AA^{T}u_{j}}{\s_{i}\s_{j}}=\q{\s_{j}^{2}}{\s_{i}\s_{j}}u_{i}^{T}u_{j}=\case{1&\tx{if
+}i=j\\0&\tx{if }i\ne j}\]
+
+If \(A\) is of rank \(r\) then we have \(r\) positive singular values
+\(\s_{1}\ge\cdots\ge\s_{r}>0\) and rest are zeros. Thus we have,
+
+\begin{align*}
+& A[v_{1},\cdots,v_{r},v_{r+1},\cdots,v_{n}] =
+[\s_{1}u_{1},\cdots,\s_{r}u_{r},0,\cdots,0]\\
+\im & A[v_{1},\cdots,v_{r},v_{r+1},\cdots,v_{n}] =  [u_{1},\cdots,u_{m}]\inb{\begin{array}{@{}c|c@{}}\mat{\s_{1}&&\\&\ddots&\\&&\s_{r}}&O\\ \midrule O&O\end{array}}_{m\x n}\\
+\im & AV = U \S\\
+\im & A = U\S V^{T}
+\end{align*}
+
+**** References
+     - [[https://math.mit.edu/classes/18.095/2016IAP/lec2/SVD_Notes.pdf][MIT SVD Notes]]
+*** The Moore-Penrose Pseudoinverse
+    Pseudoinverse \(D^{+}\) of a diagonal matrix \(D\) is obtained by taking the
+    reciprocal of its non-zero elements then taking the transpose of the
+    resulting matrix.
+
+    In general, let \(A\) be a matrix with \(A=U\S V^{T}\) as it's SVD. Then the
+    pseudoinverse of \(A\) is defined as \[A^{+}=V\S^{ +}U^{T}\].
+**** Properties
+     + \(AA^{+}A=A\)
+     + \(A^{ + }AA^{ + }=A^{ + }\)
+     + \((AA^{+})^{T}=AA^{ +}\)
+     + \((A^{+}A)^{T}=A^{ +}A\)
+     + The pseudoinverse provides a least square solution to a system of linear
+       equations \(Ax=b\), i.e. \(\norm{Ax-b}_{2}\ge\norm{Az-b}_{2}\) where
+       \(z=A^{+}b\), the solution with minimum Euclidean norm.
+
+**** References
+     - [[https://en.wikipedia.org/wiki/Proofs_involving_the_Moore%E2%80%93Penrose_inverse][Pseudoinverse Wiki]]
+*** The Trace Operator
+    \[\tr(A)=\sum_{i}A_{ii}\]
+**** Properties
+     + \(\tr(A)=\tr(A^{T})\)
+     + \(\tr(AB)=\tr(BA)\)
+     + \(\norm{A}_{F}=\sqrt{\tr(AA^{T})\)
+
+* Probability Theory
+
+** Basic Concepts
+*** Sample Space
+    The set, \(S\), of all possible outcomes of a particular experiment is
+    called the sample space for the experiment.
+*** Event
+    Given a sample space \(S\), an event is any subset \(E \c S\).
+*** Sigma Algebra
+    A collection of subsets of \(S\) is called a sigma algebra (or Borel field),
+    denoted by \(\BB\), if it satisfies the following three properties:
+    1. \(\ns\in\BB\).
+    2. If \(A\in \BB\im A^{c}\in\BB\).
+    3. If \(A_{1},A_{2},\ldots\in\BB\im \uu_{i=1}^{\oo}A_{i}\in\BB.\)
+*** Probability Space Axioms
+    Let \(S\) be a sample space and \(\FF\) [an associated sigma algebra] be the
+    collection of all events. A probability is a function \(P:\FF\to [0,1]\)
+    such that 
+    + \(P(S) = 1\)
+    + If \(E_{1},E_{2},\ldots\) are a countable collection of disjoint events
+      i.e. \(E_{i}\n E_{j}=\ns\) if \(i\ne j\), then
+      \[P\inp{\uu_{j=1}^{\oo}E_{j}}=\sum_{j=1}^{\oo}P(E_{j}).\]
+*** Theorem
+    + \(P(\ns)=0\)
+    + If \(E_{1},\ldots, E_{n}\) are a finite collection of disjoint events,
+      then
+      \[P\inp{\uu_{j=1}^{n}E_{j}}=\sum_{j=1}^{n}P(E_{j}).\]
+    + If \(E\) and \(F\) are events with \(E\c F\), then \(P(E)\le P(F)\).
+    + If \(E\) and \(F\) are events with \(F\c E\), then \(P(F-E)=P(F)-P(E)\).
+    + Let \(E^{c}\) be the complement of event \(E\). Then \(P(E^{c})=1-P(E)\).
+    + If \(E\) and \(F\) are events then \(P(E\u F)=P(E)+P(F)-P(E\n F)\).
+    + /Bonferroni's Inequality:/ If \(E\) and \(F\) are events then, \(P(E\n
+      F)\ge P(E)+P(F)-1\).
+    + For any event \(A\), \(P(A)=\sum_{i=1}^{\oo}P(A\n C_{i})\) where
+      \(\set{C_{i}}_{i=1}^{\oo}\) is a parition of \(S\).
+    + /Boole's Inequality:/ For any countable collection of events
+      \(\set{A_{i}}_{i=1}^{\oo}\), \(P(\uu_{i=1}^{\oo}A_{i})\le
+      \sum_{i=1}^{\oo}P(A_{i})\). 
+      
+      Hint: \(\uu_{i=1}^{\oo}A_{i} = \uu_{i=1}^{\oo}A_{i}^{*}\) where
+      \(A_{i}^{*} = A_{i}-\inp{\uu_{j=1}^{i-1}A_{j}}\).
+
+      Remark: \(P(\uu_{i=1}^{n}A_{i}^{c})\le\sum_{i=1}^{n}P(A_{i}^{c})\im
+        P(\nn_{i=1}^{n}A_{i})\ge \sum_{i=1}^{n}P(A_{i})-(n-1)\).
+*** Theorem (Uniform\(\set{\w_{1},\ldots,\w_{n}}\))
+    Let \(S=\set{\w_{1},\ldots,w_{n}}\) be a non-empty, finite set. If \(E\c S\)
+    is any subset of \(S\), let \(P(E)=\q{|E|}{|S|}\). Then \(P\) defines a
+    probability on \(S\) and \(P\) assigns equal propbabilities to each
+    individual outcomes in \(S\).
+** Conditional Probabilities and Independence
+*** Conditional Probability
+    Let \(S\) be a sample space with probability \(P\). Let \(A\) and \(B\) be
+    two events with \(P(B)>0\). Then the conditional probability of \(A\) given
+    \(B\) written as \(P(A|B)\) is defined by
+    \[P(A|B)=\q{P(A\n B)}{P(B)}.\]
+*** Theorem
+    Let \(A\) be an event and let \(\set{B_{i}:1\le i\le n}\) be disjoint
+    collection of events for which \(P(B_{i})>0\) for all \(i\) and \(A\c
+    \uu_{i=1}^{n}B_{i}\). Suppose \(P(B_{i})\) and \(P(A|B_{i})\) are
+    known. Then \(P(A)\) may be computed as
+    \[P(A)=\sum_{i=1}^{n}P(A|B_{i})P(B_{i}).\]
+*** Theorem
+    For any integer \(n\ge2\), let \(A_{1},\ldots,A_{n}\) be a collection of
+    events for which \(\nn_{j=1}^{n-1}A_{j}\) has positive probability. Then,
+    \[P\inp{\nn_{j=1}^{n}A_{j}}=P(A_{1})\.\prod_{j=2}^{n}P\inp{A_{j}|\nn_{k=1}^{j-1}A_{k}}.\]
+*** Bayes' Theorem
+    Suppose \(A\) is an event and \(\set{B_{i}:1\le i\le n}\) are a collection
+    of disjoint events such that \(A\c\uu_{i=1}^{n}B_{i}\). Further assume that
+    \(P(A)>0\) and \(P(B_{i})>0\) for all \(1\le i\le n\). Then for any \(1\le
+    i\le n\),
+    \[P(B_{i}|A)=\q{P(A|B_{i})P(B_{i})}{\sum_{j=1}^{n}P(A|B_{j})P(B_{j})}.\]
+*** Independence
+    Two events \(A\) and \(B\) are independent if \[P(A\n B)=P(A)P(B).\]
+    
+    + If \(A\) and \(B\) are independent then \(P(A|B)=P(A)=P(A|B^{c})\).
+*** Mutual Independence
+    A finite collection of events \(E_{1},\ldots,E_{n}\) is mutually independent
+    if
+    \[P(E_{1}\n\cdots\n E_{n})=P(E_{1})\cdots P(E_{n}).\]
+    An arbitrary collection of events are mutually independent if every finite
+    subcollection is mutually independent.
+** Random Variables
+*** Random Variable
+    A random variable is a function from a sample space \(S\) into real numbers.
+** Probability Distributions
+*** Discrete Variables and Probability Mass Functions
+*** Continuous Variables and Probability Density Functions
+*** Marinal Probability 
+*** Conditional Probability
+*** The Chain Rule of Conditional Probabilities
+*** Independence and Conditional Independence
+*** Expectation, Variance and Covariance
+*** Common Probability Distributions
+**** Bernoulli Distribution
+* Machine Learning
+** Introduction
+*** Definition
+   Arthur Samuel described it as: "the field of study that gives
+   computers the ability to learn without being explicitly programmed."
+   This is an older, informal definition.
+
+   Tom Mitchell provides a more modern definition: "A computer program
+   is said to learn from experience $E$ with respect to some class of
+   tasks $T$ and performance measure $P$, if its performance at tasks
+   in $T$, as measured by $P$, improves with experience $E$." Example:
+   playing checkers. $E =$ the experience of playing many games of
+   checkers, $T =$ the task of playing checkers, $P =$ the probability
+   that the program will win the next game.
+
+*** Types
+ In general, any machine learning problem can be assigned to one of two
+  broad types:
+ - *Supervised learning:* Given a data set, we try to fit a model to
+   get relationships between the input variables and output variable to
+   predict the output for an unknown input.
+     - *Regression:* Here we try to map input variables to some
+       continuous function. Example: Given a picture of a person, we
+       have to predict their age on the basis of the given picture.
+     - *Classification:* Here we try to map input varibles to some
+       discrete function. Example: Given a patient with a tumor, we
+       have to predict whether the tumor is malignant or benign.
+
+ - *Unsupervised learning:* Given a data set, we try to derive pattern
+   from data without any prior knowledge of the data.
+     - *Clustering:* Take a collection of 1,000,000 different genes,
+       and find a way to automatically group these genes into groups
+       that are somehow similar or related by different variables, such
+       as lifespan, location, roles, and so on.
+     - *Non-clustering:* The "Cocktail Party Algorithm", allows you to
+       find structure in a chaotic environment. (i.e. identifying
+       individual voices and music from a mesh of sounds at a cocktail
+       party).
+
+ - *Reinforcement Learning:* Train model with reward function.
+** Supervised Learning
+ Let the data set be $\{(\v x^{(i)},y^{(i)}):1\le i\le n,n\in\N\}$ and let
+ $f:\R^p\to\R$ such that $y^{(i)}=f(\v x^{(i)})+\ep_{i}$ be our prediction
+ function where $\ep_{i}$ is the error in taking $f(\v x^{(i)})$ as an
+ estimate of $y^{(i)}$.
+
+ - *Cost Function:*
+   \(\bm{\ep}^2=J(\vth)=\sum_{i=1}^n(f(\v x^{(i)})-y^{(i)})^2=\sum_{i=1}^n(\hat y^{(i)}-y^{(i)})^2.\)
+ - *Goal:* to find $f$ such that $\bm{\ep}$ is minimum.
+
+*** Linear Model (linear regression or parametric learning algorithm)
+
+ Let the data set be $\{(\v x^{(i)},y^{(i)}):0\le i\le n,n\in\N\}$ where
+ $\v x^{(i)}_{0}=1,\A i$ and let $f:\R^{p+1}\to\R$ such that
+ $y^{(i)}=f(\v x^{(i)})+\ep^{(i)}=\th_0\v x^{(i)}_{0}+\th_1\v x^{(i)}_{1}+\th_2\v x^{(i)}_{2}+\cdots+\th_p\v x^{(i)}_{p}+\ep_{i}=\v x^{(i)}^t\bm{\th}+\ep_{i}=\bm{\th}^t\v x^{(i)}+\ep_{i}$.
+ then we have, $$\bmat{y^{(1)} \\ y^{(2)} \\ \vdots \\ y^{(n)}}
+ =\bmat{1 & \v x^{(1)}_{1} & \v x^{(1)}_{2} & \cdots & \v x^{(1)}_{p}\\
+	1 & \v x^{(2)}_{1} & \v x^{(2)}_{2} & \cdots & \v x^{(2)}_{p}\\
+	\vdots & \vdots & \vdots & \cdots & \vdots\\
+	1 & \v x^{(n)}_{1} & \v x^{(n)}_{2} & \cdots & \v x^{(n)}_{p}}
+ \bmat{\th_0 \\\th_1 \\ \th_2 \\ \vdots \\ \th^{(p)}}
+ +\bmat{\ep_1 \\ \ep_2 \\ \vdots \\ \ep_n}
+ \im\v y=X\bm{\th}+\bm{\ep}.$$
+
+ - *Cost Function:* $J(\bm{\th})=||\v y-X\bm{\th}||^2$
+ - *$\ell_2$ Regularization:* if we want regularization then we take the cost function
+ $J(\vth)=\norm{\v y-X\vth}^2+\l\norm{\vth}^2$ where $\l$ is the regularization parameter.
+
+**** Batch Gradient Descent
+ Useful for small set of training data. Computationally very costly and slow algorithm. But converges to global minimum.
+ - *Algorithm 1:*
+   1. choose some $\d>0$ and $\a>0$ and an initial value
+      $\hat{\bm{\th}}^{(0)}$.
+   2. update $\bm{\th}$:
+      \begin{align*}     \hat{\bm{\th}}^{(j+1)}:=&\hat{\bm{\th}}^{(j)}-\a\ob\V_{\bm{\th}}J(\bm{\th})\cb_{\hat{\bm{\th}}^{(j)}}\\
+      =&\hat{\bm{\th}}^{(j)}-\a\op\ob\frac{\del J(\bm{\th})}{\del \th_i}\cb_{\hat{\bm{\th}}^{(j)}}\cp_{i=1}^p\\
+      =&\hat{\bm{\th}}^{(j)}-\a\op\ob\sum_{k=1}^n2(f(\v x^{(k)})-y^{(k)})\v x^{(k)}_{i}\cb_{\hat{\bm{\th}}^{(j)}}\cp_{i=1}^p.
+      \end{align*}
+      Here $\a$ is called the learning rate.
+   3. if $||\hat{\bm{\th}}^{(j+1)}-\hat{\bm{\th}}^{(j)}||<\d\im\hat{\bm{\th}}=\hat{\bm{\th}}^{(j+1)}$; else goto 2.
+
+ - *Algorithm 2:* Let $\hat{\bm{\th}}_k^{(j)}$ denotes that $\th_0,\ldots,\th_k$ parameters are updated and $\hat{\bm{\th}}_{-1}^{(j)}=\hat{\bm{\th}}^{(j)}$ and $\hat{\bm{\th}}_p^{(j)}=\hat{\bm{\th}}^{(j+1)}$.
+
+   1. choose some $\d>0$ and $\a>0$ and an inital value
+      $\hat{\bm{\th}}^{(0)}$.
+
+   2. for $k=0$ to $p$:
+
+      update $\bm{\th}$:
+      $\hat{\bm{\th}}_{k}^{(j)}:=\hat{\bm{\th}}_{k-1}^{(j)}-\a\op\ob \bf 1{\{i=k\}}\dd{J(\bm{\th})}{\th_i}\cb_{\hat{\bm{\th}}_{k-1}^{(j)}}\cp_{i=1}^p$.
+
+   3. if
+      $|\hat{\bm{\th}}^{(j+1)}-\hat{\bm{\th}}^{(j)}|<\d\im\hat{\bm{\th}}=\hat{\bm{\th}}^{(j+1)}$;
+      else goto 2.
+**** Mini-Batch Gradient Descent
+ In each iteration use a sample drawn uniformly from the training set. If sample size is 1 then the algorithm called Stochastic Gradient Descent.
+ - *Handling Data with Large Values:* Normalize the data using
+   $x^t_i=\frac{x_i-\mu}{R}$ or $x^t_i=\frac{x_i-\mu}{\s}$.
+
+*** Matrix Derivative 
+    Let $f:\R^{m\xx n}\to\R$. Then the derivative of $f$ with respect to $A$ is
+   $\V_A f(A)=\inp{\inp{\dd{f(A)}{A_{ij}}}_{ij}}_{m\xx n}$.
+
+**** Some useful results
+
+    1. $\tr(A+B)=\tr(A)+\tr(B)$
+    2. $\tr(AB)=\tr(BA)$.
+    3. $\V_A\tr(AB)=B^t$.
+    4. $\V_{A^t}f(A)=(\V_Af(A))^t$.
+    5. $\V_A\tr(ABA^tC)=CAB+C^tAB^t$.
+    6. $\V_A|A|=|A|(A^{-1})^t$.
+
+*** Least Square Estimate
+
+   \begin{align*}
+     \V_{\bm{\th}}J(\bm{\th})&=\V_{\bm{\th}}||y-X\bm{\th}||^2 \\
+     &=\V_{\bm{\th}}(\bm{\th}^tX^tX\bm{\th}-\bm{\th}^tX^t\v y-\v yX\bm{\th}+\v y^t\v y) \\
+     &=\V_{\bm{\th}}\tr(\bm{\th}^tX^tX\bm{\th}-\bm{\th}^tX^t\v y-\v yX\bm{\th}+\v y^t\v y) \\
+     &=\V_{\bm{\th}}(\tr(\bm{\th}^tX^tX\bm{\th})-2\tr(\v yX\bm{\th})) \\
+     &=2(X^tX\bm{\th}-X^t\v y).
+   \end{align*}
+
+  Hence,
+   $\V_{\bm{\th}}J(\bm{\th})=0 \im X^tX\bm{\th}-X^t\v y=0 \im \bm{\th}=(X^tX)^-X^t\v y$.
+
+*** Locally Weighted Linear Regression(Non-parametric Learning Algorithm)
+   Suppose we have to predict the value of the dependent
+   variable $y$ at $\v x$. Then to minimize the cost function we can use
+   LWR, i.e. to fit $\bm{\th}$ to minimize
+   $\sum_i w_i(y_i-\bm{\th}^t\v x_i)^2$ where the weights are
+   $w_i=\exp\inp{-\q{(\v x_i-\v x)^2}{2\t^2}}$. Here $\t$, called the
+   bandwidth parameter, controls how quickly weight falls with distance.
+
+** Generalized Linear Models
+*** Binary Classification
+ Suppose that we have the data
+ $\{(y^{(i)},\v x^{(i)})|1\le i\le n,y^{(i)}\in\{0,1\}\}$. Since $y\in \set{0,1}$ we
+ can assume $Y\sim$ Bernoulli($h_{\bm{\th}}(\v x)$). So,
+
+ \begin{align*}
+ &P(y=1|\v x;\bm{\th})=h_{\bm{\th}}(\v x) \\ &P(y=0|\v x;\bm{\th})=1-h_{\bm{\th}}(\v x).
+ \end{align*}
+
+ This can be written more compactly as,
+ $$P(y|\v x;\bm{\th})=(h_{\bm{\th}}(\v x))^y(1-h_{\bm{\th}}(\v x))^{1-y}.$$
+ Assuming that the samples were generated independently, we can then
+ write the likelihood of the parameters as
+ $$L(\bm{\th})=\prod_{i=1}^n P(y^{(i)}|\v x^{(i)};\bm{\th})=\prod_{i=1}^n(h_{\bm{\th}}(\v x^{(i)}))^{y^{(i)}}(1-h_{\bm{\th}}(\v x^{(i)}))^{1-y^{(i)}}.$$
+ Hence, the log-likelihood function is,
+ $$\ell(\bm{\th})=\log L(\bm{\th})=\sum_{i=1}^n y^{(i)}\log h_{\bm{\th}}(\v x^{(i)})+(1-y^{(i)})\log(1-h_{\bm{\th}}(\v x^{(i)})).$$
+ Now we know the sigmoid function \(\s(z)=\q{1}{1+e^{-z}}\) maps the real
+ numbers to (0,1) and has nice properties. So we can take \(h_{\vth}(\v
+ x)=\q1{1+e^{-\vth^{T}\v x}}\). Note that
+ $\ds{\th_j}(h_{\bm{\th}}(\v x))=(h_{\bm{\th}}(\v x))(1-h_{\bm{\th}}(\v x))x_j$.
+ Hence
+ $$\dd{\ell}{\th_j}=\sum_{i=1}^{n}(y^{(i)}-h_{\bm{\th}}(\v x^{(i)}))x^{(i)}_{j}$$ now
+ we can use gradient ascent to maximize $\ell$. [fn:2]
+
+*** Another Algorithm for Maximizing $\ell(\th)$
+
+ If $f:\R\to\R$ and if we want to find a root of $f$ then we can use
+ Newton's method i.e. $$\th_{n+1}=\th_n-\frac{f(\th_n)}{f'(\th_n)}$$ with
+ $\th_0$ is some initial value then, $f(\th_n)\to0$ as $n\to\oo$.
+
+ Now if we use $f'$ instead of $f$, then using Newton's method we can
+ obtain $\th$ at which $f$ obtains its optimal values i.e. using the
+ update rule $$\th_{n+1}=\th_n-\frac{f'(\th_n)}{f''(\th_n)}$$ we have
+ $\th_n$ for which $f$ attains its maximum or minimum value. For higher
+ dimension we can use Newton-Raphson method given by
+ $$\bm{\th}_{n+1}=\bm{\th}_n-H^{-1}\V_{\bm{\th}}\ell(\bm{\th})$$ where
+ $\V_{\bm{\th}}\ell(\bm{\th})=\inp{\ds{\th_1}\ell(\bm{\th}),\ldots ,\ds{\th_n}\ell(\bm{\th})}$
+ and $H_{ij}=\frac{\del^2\ell(\bm{\th})}{\del\th_i\del\th_j}$.
+
+*** Softmax Regression
+ Suppose that we have the data
+ $\{(\v y^{(i)},\v x^{(i)})|1\le i\le n,\v y^{(i)}\in\{e^{(1)},\ldots e^{(k)}\}\}$. Since
+ $\v y^{(i)}\in \set{e^{(1)},\ldots ,e^{(k)}}$ we can assume $\v Y\sim$ Multinoulli($h_{\bm{\th}^{(1)}}(\v x),\ldots ,h_{\bm{\th}^{(k-1)}}(\v x)$).
+ Hence,
+ $$P(\v y|\v x;\vth^{(1)},\ldots,\vth^{(k-1)})=(h_{\bm{\th}^{(1)}}(\v x))^{y_{1}}(h_{\bm{\th}^{(2)}}(\v x))^{y_{2}}\cdots (h_{\bm{\th}^{(k)}}(\v x))^{y_{k}}$$
+ with $\sum_{i=1}^{k}(h_{\bm{\th}^{(i)}}(\v x))=1$.
+ Now assuming that the samples were generated independently, we can then
+ write the likelihood of the parameters as
+
+ \begin{align*}
+ L(\bm{\th}^{(1)},\ldots ,\bm{\th}^{(k-1)})&=\prod_{i=1}^{n}P(\v y^{(i)}|\v x^{(i)};\bm{\th}^{(1)},\ldots ,\bm{\th}^{(k-1)})\\
+ &=\prod_{i=1}^{n}(h_{\bm{\th}^{(1)}}(\v x^{(i)}))^{y^{(i)}_{1}}(h_{\bm{\th}^{(2)}}(\v x^{(i)}))^{y^{(i)}_{2}}\cdots (h_{\bm{\th}^{(k)}}(\v x^{(i)}))^{y^{(i)}_{k}}
+ \end{align*}
+
+We can take $h_{\bm{\th}^{(j)}}(\v x^{(i)})=\frac{e^{{\bm{\th}^{(j)}}^T\v
+ x^{(i)}}}{\sum_{r=1}^{k}e^{{\bm{\th}^{(r)}}^T\v x^{(i)}}}$ as it satisfies the
+ necessary properties.
+ Hence log-likelihood function is
+ \begin{align*}
+ \ell(\bm{\th}^{(1)},\ldots ,\bm{\th}^{(k-1)})&=\log L(\bm{\th}^{(1)},\ldots ,\bm{\th}^{(k-1)})\\
+ &=\sum_{i=1}^{n}y^{(i)}_{1}\log (h_{\bm{\th}^{(1)}}(\v x^{(i)}))+y^{(i)}_{2}\log (h_{\bm{\th}^{(2)}}(\v x^{(i)}))+\cdots+ y^{(i)}_{k}\log (h_{\bm{\th}^{(k)}}(\v x^{(i)}))\\
+ &=\sum_{i=1}^{n}\sum_{j=1}^ky^{(i)}_{j}\log (h_{\bm{\th}^{(j)}}(\v x^{(i)})).
+ \end{align*}
+ Now we can use Newton's method or gradient ascent method to maximize $\ell$.
+
+** Generative Learning Algorithms
+ *Discriminative Learning Algorithm:* Algorithms that try to learn $P(y|x)$ directly.
+
+ *Generative Learning Algorithm:* Algorithms that try to model $P(x|y)$
+ and prior $P(y)$ and use Bayes rule to derive posterior
+ $P(y|x)=\frac{P(x|y)P(y)}{P(x)}$. So for making prediction we take $y$
+ that maximizes $P(y|x)$ i.e.
+ $$\arg\max_y P(y|x)=\arg\max_y \frac{P(x|y)P(y)}{P(x)}=\arg\max_y P(x|y)P(y).$$
+
+*** The Gaussian Discriminant Analysis Model
+
+ Let $\v x$ assume continuous values and
+ \begin{gather*}
+ y\sim\text{Bernoulli}(\f)\\
+ \v x|y=0\sim \NN(\bm{\mu}_0,\S)\\
+ \v x|y=1\sim \NN(\bm{\mu}_1,\S)
+ \end{gather*}
+
+ Hence the distributions are
+ \begin{align*}
+ P(y)&=\f^y(1-\f)^{1-y}\\
+ P(\v x|y=0)&=\frac{1}{(2\pi)^{\frac{n}{2}}|\S|^{\frac{1}{2}}}\exp\inp{-\frac{1}{2}(\v x-\bm{\mu}_0)^T\S^{-1}(\v x-\bm{\mu}_0)}\\
+ P(\v x|y=1)&=\frac{1}{(2\pi)^{\frac{n}{2}}|\S|^{\frac{1}{2}}}\exp\inp{-\frac{1}{2}(\v x-\bm{\mu}_1)^T\S^{-1}(\v x-\bm{\mu}_1)}
+ \end{align*}
+ Suppose that we have the data $\{(y_i,\v x_i)|1\le i\le n,y_i\in\{0,1\}\}$.
+ Now log-likelihood function is
+ \begin{align*}
+ \ell(\f,\bm{\mu}_0,\bm{\mu}_1,\S)& =\log\prod_{i=1}^{m}P(\v x_i,y_i;\f,\bm{\mu}_0,\bm{\mu}_1,\S)\\
+ &= \log\prod_{i=1}^{m}P(\v x_i|y_i;\f,\bm{\mu}_0,\bm{\mu}_1,\S)P(y_i;\f).
+ \end{align*}
+ Now maximizing $\ell$ w.r.t. the parameters we obtain the MLE of the
+ parameters.
+
+ GDA is stronger than logistic regression in the sense that GDA makes
+ assumption that $\v X|y\sim$ normal distribution. When this assumption
+ is correct then GDA will find better fit to the data and do well on
+ small data than logistic regression. If the data is very large logistic
+ regression will perform as good as GDA.
+
+*** Naive Bayes(Multinoulli Event Model)
+
+ Now let us assume that $\v x$ assume discrete values. If $\v x$ is of
+ dimension $p\x 1$.
+
+ Now, if $x_i\in\set{0,1},1\le i\le p$ and so there are $2^p$ outcomes
+ and so if we want to model $\v X|y=1$ as Bernoulli($\f_{i|y=1}$) for
+ $1\le i\le 2^{p}$ and that is too many parameters.
+
+ So we assume that $x_i$'s are conditionally independent given $y$ i.e.
+ \begin{align*}
+ P(\v x|y)& =P(x_1,\ldots ,x_p|y)\\
+ &=P(x_1|y)P(x_2|y,x_1)\cdots P(x_p|y,x_1,\ldots ,x_{p-1})\\
+ &=P(x_1|y)P(x_2|y)\cdots P(x_p|y)\\
+ &=\prod_{i=1}^{p}P(x_i|y)
+ \end{align*}
+ Now let $\v X|y=1\sim$ Multinoulli($\f_{1|y=1},\ldots ,\f_{p|y=1}$)
+ and $\v X|y=0\sim$ Multinoulli($\f_{1|y=0},\ldots ,\f_{p|y=0}$). Hence
+ $P(x_j=1|y=1)=\f_{j|y=1}$ and $P(x_j=1|y=0)=\f_{j|y=0}$ and
+ $P(y=1)=\f_y$. Hence given the training data
+ $\set{(y_i,\v x_i)|1\le i\le n}$, we can write the joint likelihood
+ function as
+ \begin{align*}
+ L(\f_{y_i},\f_{j|y_i=0},\f_{j|y_i=1})_{1\le i\le n,1\le j\le p}&=\prod_{i=1}^{n}P(y_i,\v x_i)\\
+ &=\prod_{i=1}^{n}P(\v x_i|y_i)P(y_i)
+ \end{align*}
+ Hence log-likelihood function is
+ \begin{align*}
+ \ell=&\log\prod_{i=1}^{n}(P(\v x_i|y_i=1)P(y_i=1))^{\v1\set{y_i=1}}(P(\v x_i|y_i=0)P(y_i=0))^{\v1\set{y_i=0}}\\
+ =&\sum_{i=1}^{n}[\v1\set{y_i=1}(\log P(\v x_i|y_i=1)+\log P(y_i=1))\\
+ &+\v1\set{y_i=0}(\log P(\v x_i|y_i=0)+\log P(y_i=0))]\\
+ =&\sum_{i=1}^{n}\v1\set{y_i=1}\inb{\log\f_{y}+\sum_{j=1}^{p}\inb{(x_{i_j}\log\f_{j|y=1})+(1-x_{i_j})\log(1-\f_{j|y=1}))}}\\
+ &+\sum_{i=1}^{n}\v1\set{y_i=0}\inb{\log(1-\f_{y})+\sum_{j=1}^{p}\inb{(x_{i_j}\log\f_{j|y=0})+(1-x_{i_j})\log(1-\f_{j|y=1})}}
+ \end{align*}
+ and maximizing $\ell$ we have the MLE of all the parameters i.e.
+ \begin{align*}
+ \f_y=&\frac{\sum_{i=1}^{n}\v1\set{y_i=1}}{n}\\
+ \f_{j|y=0}=&\frac{\sum_{i=1}^{n}x_{i_j}\v1\set{y_i=0}}{\sum_{i=1}^{n}\v1\set{y_i=0}}\\
+ \f_{j|y=1}=& \frac{\sum_{i=1}^{n}x_{i_j}\v1\set{y_i=1}}{\sum_{i=1}^{n}\v1\set{y_i=1}}
+ \end{align*}
+ Hence given any $\v x$ 
+ \begin{align*}
+ P(y=1|\v x)=&\frac{P(\v x|y=1)P(y=1)}{P(\v x)}\\
+ =&\frac{(\prod_{i=1}^{p}P(x_i|y=1))P(y=1)}{(\prod_{i=1}^{p}P(x_i|y=1))P(y=1)+(\prod_{i=1}^{p}P(x_i|y=0))P(y=0)}
+ \end{align*}
+ and so pick the class which has higher probability. Now suppose that
+ on the test data we have a word(say at last position) that did not
+ apperared on the trainig data. Then $\f_{p+1|y=1}=0$ and $\f_{p+1|y=0}$.
+ Then
+ $$P(y=1|\v x)=\frac{(\prod_{i=1}^{p+1}P(x_i|y=1))P(y=1)}{(\prod_{i=1}^{p+1}P(x_i|y=1))P(y=1)+(\prod_{i=1}^{p+1}P(x_i|y=0))P(y=0)}=\frac{0}{0}.$$
+ To remedy this, we use Laplace smoothing by replacing the old estimates
+ by the new estimates 
+ \begin{align*}
+ \f_{j|y=0}=&\frac{\sum_{i=1}^{n}x_{i_j}\v1\set{y_i=0}+1}{\sum_{i=1}^{n}\v1\set{y_i=0}+k}\\
+ \f_{j|y=1}=& \frac{\sum_{i=1}^{n}x_{i_j}\v1\set{y_i=1}+1}{\sum_{i=1}^{n}\v1\set{y_i=1}+k}
+ \end{align*}
+ if $k$ new words found in the test data and so $\v x_i$ now become of
+ dimension $(p+k)\x 1$ with last $k$ entries are zeroes.
+
+*** Multinomial Event Model
+
+ Suppose now that
+ $\v X|y=1\sim$ Multinomial($\f_{1|y=1},\ldots ,\f_{p|y=1}$) and similarly
+ $\v X|y=0$ and $Y\sim$ Bernoulli($\f_y$). [fn:4]
+ \begin{align*}
+ \ell=&\log\prod_{i=1}^{n}P(\v x_i|y_i)P(y_i)\\
+ =&\log\prod_{i=1}^{n}(P(\v x_i|y_i=1)P(y_i=1))^{\v1\set{y_i=1}}(P(\v x_i|y_i=0)P(y_i=0))^{\v1\set{y_i=0}}\\
+ =&\sum_{i=1}^{n}\log\inp{\binom{n_i}{x_{i_1},\ldots ,x_{i_p}}\inp{\prod_{j=1}^{p-1}\f_{j|y=1}^{x_{i_j}}}\inp{1-\sum_{k=1}^{p-1}\f_{k|y=1}}^{x_{i_p}}\f_y}^{\v1\set{y_i=1}}\\
+ &+\sum_{i=1}^{n}\log\inp{\binom{n_i}{x_{i_1},\ldots ,x_{i_p}}\inp{\prod_{j=1}^{p-1}\f_{j|y=0}^{x_{i_j}}}\inp{1-\sum_{k=1}^{p-1}\f_{k|y=0}}^{x_{i_p}}(1-\f_y)}^{\v1\set{y_i=0}}
+ \end{align*}
+ Now maximizing $\ell$, we have the MLE of the parameters i.e.
+ $$\frac{\partial \ell}{\partial \phi_y}=0\im\f_y = \frac{\sum_{i = 1}^n \v{1} \{
+ y_i = 1 \}}{n}$$ Now,
+ \begin{align*}
+ &0 = \frac{\partial \ell}{\partial \phi_{k |  y = 1}} = \sum_{i =
+ 1}^n \v{1} \{ y_i = 1 \} \left( \frac{x_{i_k}}{\phi_{k | y = 1
+ }} - \frac{x_{i_p}}{\phi_{p | y = 1 }} \right)\\
+ \im&\phi_{p | y = 1 } \sum_{i = 1}^n \v{1} \{ y_i = 1 \} x_{i_k}
+ = \phi_{k | y = 1 } \sum_{i = 1}^n \v{1} \{ y_i = 1 \}
+ x_{i_p}\\
+ \im&\phi_{p | y = 1 } \sum_{k = 1}^p \sum_{i = 1}^n \v{1} \{ y_i
+ = 1 \} x_{i_k} = \sum_{k = 1}^p \phi_{k | y = 1 } \sum_{i = 1}^n
+ \v{1} \{ y_i = 1 \} x_{i_p}\\
+ \im&\phi_{p | y = 1 } \sum_{i = 1}^n \v{1} \{ y_i = 1 \} n_i =
+ \sum_{i = 1}^n \v{1} \{ y_i = 1 \} x_{i_p}\\
+ \im&\phi_{p | y = 1 } = \frac{\sum_{i = 1}^n \v{1} \{ y_i = 1 \}
+ x_{i_p}}{\sum_{i = 1}^n \v{1} \{ y_i = 1 \} n_i}
+ \end{align*}
+ Hence we have,
+ $$\phi_{k | y = 1 } = \frac{\sum_{i = 1}^n \v{1} \{ y_i = 1 \}
+ x_{i_k}}{\sum_{i = 1}^n \v{1} \{ y_i = 1 \} n_i}$$ Now applying Laplace
+ smoothing we have the estimate
+ $$\phi_{k | y = 1 } = \frac{\sum_{i = 1}^n \v{1} \{ y_i = 1 \}
+ x_{i_k}+1}{\sum_{i = 1}^n \v{1} \{ y_i = 1 \} n_i+p}$$ Similarly for
+ $\f_{k|y=0}$.
+
+** Support Vector Machine
+*** Lagrange Duality
+
+ #+begin_theorem
+ <<thm-1>>
+ For any $f:W\x Z\to\R$, we have
+ $$\sup_{z\in Z}\inf_{w\in W}f(w,z)\le \inf_{w\in W}\sup_{z\in Z}f(w,z).$$
+ #+end_theorem
+ #+begin_proof
+ For any $w_0\in W$ and $z_0\in Z$, we have
+ $$\inf_{w\in W}f(w,z_0)\le f(w_0,z_0)\le \sup_{z\in Z}f(w_0,z).$$
+ Since $\inf_{w\in W}f(w,z_0)\le \sup_{z\in Z}f(w_0,z)$ for all $w_0$ and $z_0$, we must also have
+ $$\sup_{z\in Z}\inf_{w\in W}f(w,z)\le \inf_{w\in W}\sup_{z\in Z}f(w,z).$$
+ #+end_proof
+
+ Consider the primal optimization problem:
+ \begin{align*}
+ \min_{\v w}\;&f(\v w)\\
+ \text{s.t.}\quad&g_i(\v w)\le 0,\quad i=1,\ldots ,k\\
+ &h_i(\v w)=0,\quad i=1,\ldots ,l.
+ \end{align*}
+ To solve it, we start by defining the generalized Lagrangian
+ $$\LL(\v w,\bm \a,\bm \b)=f(\v w)+\sum_{i=1}^{k}\a_ig_i(\v w)+\sum_{i=1}^{l}\b_ih_i(\v w)$$
+ where $\a_i,\b_i$ are the Lagrange multipliers. Now consider the
+ quantity
+ $$\th_{\PP}(\v w)=\max_{\bm\a,\bm\b;\a_i\ge0}\LL(\v w,\bm \a,\bm \b).$$
+ Then
+ $$\th_{\PP}(\v w)=\case{f(\v w)&\text{if $\v w$ satisfies primal constraints}\\\oo&\text{otherwise.}}$$
+ Hence the primal problem is
+ $$\min_{\v w}\th_{\PP}(\v w)=\min_{\v w}\max_{\bm\a,\bm\b;\a_i\ge0}\LL(\v w,\bm \a,\bm \b)=p^*$$
+ becomes our minimization problem.
+ Now we define Lagrange dual function as
+ $$\th_{\DD}(\bm\a,\bm\b)=\min_{\v w}\LL(\v w,\bm \a,\bm \b).$$ 
+ Then we get the dual optimization problem by interchanging 'min-max' in the primal problem i.e.
+ $$\max_{\bm\a,\bm\b;\a_i\ge0}\th_{\DD}(\bm\a,\bm\b)=\max_{\bm\a,\bm\b;\a_i\ge0}\min_{\v w}\LL(\v w,\bm \a,\bm \b)=d^*.$$
+ Note that $d^*\le p^*$ by Theorem [[thm-1]]. However under certain conditions
+ $d^*=p^*$, and these conditions are
+
+ 1. $f$ and $g_i$'s are convex and $h_i$'s are affine
+    i.e. $h_i(\v w)=\v w^T\v a_i+b_i$.
+ 2. $g_i$'s are feasible i.e. $\E \v w$ such that $g_i(\v w)<0,\A i$.
+ 3. KKT conditions: $\E \v w^*,\bm\a^*,\bm\b^*$ such that
+    \begin{align*}
+    \ds{w_i}\LL(\v w^*,\bm \a^*,\bm \b^*)=&0,\quad i=1,\ldots ,n\\
+    \ds{\b_i}\LL(\v w^*,\bm \a^*,\bm \b^*)=&0,\quad i=1,\ldots ,l\\
+    \a_i^*g_i(\v w^*)=&0,i=1,\ldots ,k\\
+    g_i(\v w^*)\le&0,i=1,\ldots ,k\\
+    \bm\a^*\ge&0,i=1,\ldots ,k
+    \end{align*}
+    Then $d^*=p^*$ and $\v w^*$ is the solution to the primal problem
+    and $\bm\a^*,\bm\b^*$ are the solution to the dual problem.
+
+*** Optimal Margin Classifier
+
+ \input{img/1}
+ Suppose that we have the dataset
+ $\set{(y_i,\v x_i):1\le i\le n,y_i\in\set{-1,1},\v x_i\in\R^p}$. Assume
+ that the points are linearly separable. Then our objective is to find a
+ separating hyperplane that maximizes the distance from the points to the
+ hyperplane.
+
+ Now for any point$(\v r)$ on the hyperplane, we know
+ $\v w^T(\v r-\v r_0)=0$. Now for any data point $\v x$, let $d$ is the
+ signed distance of the point from the hyperplane. Then
+ $\v x-d\frac{\v w}{\norm{\v w}}$ is on the hyperplane. Hence 
+ \begin{align*}
+ &\v w^T\inp{\inp{\v x-d\frac{\v w}{\norm{\v w}}}-\v r_0}=0\\
+ \im&d=\frac{1}{\norm{\v w}}\v w^T(\v x-\v r_0).
+ \end{align*}
+ Now since the points are linearly separable we can find a hyperplane
+ such that $y_i\v w^T(\v x-\v r_0)\ge0$. Now we can take $\v w$ such that
+ $y_i\v w^T(\v x-\v r_0)\ge1$ for all $\v x_i$. Then
+ $1\le y_i\v w^T(\v x-\v r_0)=y_id\norm{\v w}\im y_i d\ge \frac{1}{\norm{\v w}}$.
+ Now let $-\v w^T\v r_0=b$. Then our problem becomes
+ $$\max \frac{1}{\norm{\v w}}\quad\text{or,}\quad \min_{\v w,b} \frac{1}{2}\norm{\v w}^2$$
+ $$\text{such that, }y_i(\v w^T\v x_i+b)\ge1,\text{ for }i=1,2,\ldots ,n.$$
+ Then the Lagrangian of our optimization problem is
+ $$\LL(\v w,b,\bm \a)=\frac{1}{2}\norm{\v w}^2-\sum_{i=1}^{n}\a_i[y_i(\v w^T+b)-1].$$
+ Now we want to find the dual problem. Hence we have to minimize $\LL$
+ w.r.t. $\v w$ and $b$ i.e.
+ $$\V_{\v w}\LL(\v w,b,\bm\a)=\v w-\sum_{i=1}^{n}\a_i y_i\v x_i=0\im \v w=\sum_{i=1}^{n}\a_i y_i\v x_i.$$
+ $$\ds b \LL(\v w,b,\bm\a)=\sum_{i=1}^{n}\a_iy_i=0.$$ Hence plugging
+ $\v w$ and $b$ in the Lagrangian, we have
+ $$\LL(\v w,b,\bm\a)=\sum_{i=1}^{n}\a_i-\frac{1}{2}\sum_{i=1}^{n}\sum_{j=1}^{n}\a_i\a_jy_iy_j(\v x_i^T\v x_j)$$
+ Hence the dual optimization problem is
+ \begin{align*}
+ \max_{\bm\a}\;&W(\bm\a)=\sum_{i=1}^{n}\a_i-\frac{1}{2}\sum_{i=1}^{n}\sum_{j=1}^{n}\a_i\a_jy_iy_j(\v x_i^T\v x_j)\\
+ \text{s.t.}\quad&\a_i\ge0,i=1,\ldots ,n\\
+ &\sum_{i=1}^{n}\a_iy_i=0.
+ \end{align*}
+
+ If $\v \a^*$ is the solution to the dual problem then
+ $$\v w^*=\sum_{i=1}^{n}\a_i^*y_i\v x_i$$ since it satisfies the 1st KKT
+ condition and the 3rd KKT conditon gives that
+ $$b^*=y_i-\v w^{*T}\v x_i$$
+ since most of the $\a_i^*$'s are zero and nonzero ones are for which
+ $y_i(\v w^{*T}\v x_i+b)-1=0$ (these are called the support vectors).
+
+ Now given any point $\v x$, if $\v w^{*T}\v x+b^*\ge0$ then we will
+ conclude $y=1$ and otherwise $y=0$.
+
+*** Kernels
+
+ Feature mapping is a function $\f:\R^p\to\R^q$ where $q$ can also be
+ $\oo$. For example, $\f(x_1,x_2)'=(x_1^2,x_2^2,x_1x_2,x_1,x_2,1)'$.
+
+ Kernel is a map $K:\R^p\x\R^p\to\R$. So given any feature mapping $\f$,
+ we define the corresponding kernel to be
+ $$K(\v x,\v z)=\f(\v x)^T\f(\v z).$$ For example,
+ $K(\v x,\v z)=(\v x^T\v z)^2$ is a kernel since $K(\v x,\v z)$ can be
+ written as $\f(\v x)^T\f(\v z)$ where
+ $\f(\v x)=(x_1x_1,x_1x_2,x_1x_3,x_2x_1,x_2x_2,x_2x_3,x_3x_1,x_3x_2,x_3x_3)'$
+ for $n=3$.
+
+ Another related kernel is $K(\v x,\v z)=(\v x^T\v z+c)^d$. Also
+ $$K(\v x,\v z)=\exp\inp{-\frac{\norm{\v x-\v z}}{2\s^2}}$$ is called the
+ Gaussian kernel which uses infinte dimensional feature mapping.
+
+ For a given feature mapping $\f$, kernel matrix is a $p\x p$ matrix
+ whose \((i,j))\)-th entry is
+ $K_{ij}=K(\v x_i,\v x_j)=\f(\v x_i)^T\f(\v x_j)$.
+
+ *Theorem(Mercer):* $K$ is valid kernel $\iff K$ is symmetric and
+ positive semi-definite.
+
+ Then we can replace all the inner products $\v x^T\v z$ in our algorithm
+ by a suitable kernel $K(\v x,\v z)$ so that in the high dimension the
+ mapped data points become linearly separable. Note that even though $\f$
+ is very high dimensional, since we are not finding $\f$ explicitly to
+ find the inner product, so computing $K$ is very inexpensive.
+
+*** Regularization and the non-separable case
+ For non-linearly separable datasets we reformulate our optimization problem as follows:
+ \begin{align*}
+ & \min_{\v w,b,\v{\xi}} \frac{1}{2}\norm{\v w}^2+C\sum_{i=1}^n\xi_i\\
+ \text{s.t. }&y_i(\v w^T\v x_i+b)\ge1-\xi_i,\text{ for }i=1,2,\ldots ,n\\
+ &\xi_i\ge 0,i=1,\ldots,n.
+ \end{align*}
+ Thus, examples are now permitted to have functional margin less than 1 but also have to pay a cost of the objective function being increased by $C\xi$ and $C$ controls the relative weighting between the twin goals of making $\norm{w}^2$ small and of ensuring that most of the examples have functional margin at least 1.
+ In this case the Lagrangian is
+ $$\LL(\v w,b,\v{\xi},\v\a,\v r)=\q12\norm{w}^2+C\sum_{i=1}^n\xi_i-\sum_{i=1}^n\a_i[y_i(\v x^T\v w+b)-1+\xi_i]-\sum_{i=1}^nr_i\xi_i.$$
+ Here, $\a_i\ge0$'s and $r_i\ge0$'s are our Lagrange multipliers. Hence our primal problem is
+ $\min_{\v w,b,\v{\xi}}\max_{\v a,\v r;\a_i\ge0,r_i\ge0}\LL(\v w,b,\v{\xi},\v\a,\v r)$.
+ Performing calculations as above we can find the dual optimization problem:
+ \begin{equation}
+ \on\begin{array}{rl}
+ \max_{\v\a}\;& W(\v\a)=\sum_{i=1}^n\a_i-\q12\sum_{i,j=1}^n\a_i\a_jy_iy_j\ip{\v x_i,\v x_j}\\
+ \tx{s.t.}\quad & 0\le\a_i\le C,i=1,\ldots,n\\
+ &\sum_{i=1}^n\a_i y_i = 0.
+ \end{array}\cc\label{eq:nsdp}
+ \end{equation}
+ which can be solved for $\v\a^*$. Then given $\v x$, we can make prediction of $y$ as above.
+ From KKT condition 3 we have
+ \begin{align*}
+ &\case{\a_i^*(y_i(\v w^{*T}\v x_i+b^*)-1+\xi_i)=0\\
+	r_i^*\xi_i=0\im (C-\a_i^*)\xi_i=0}\\
+ \im&\case{\a_i=0\im y_i(\v w^{*T}\v x_i+b)\ge1\\
+           \a_i=C\im y_i(\v w^{*T}\v x_i+b)\le1\\
+           \a_i\in(0,C)\im y_i(\v w^{*T}\v x_i+b)=1}
+ \end{align*}
+*** SMO Algorithm
+ Algorithm to solve the dual optimization problem $\ref{eq:nsdp}$:
+
+ Repeat untill convergence {
+ Select some pair $\a_i$ and $\a_j$ to update next (select $\a_i$ that will allow us to make the biggest progress towards the global maximum and then determine $\a_j$ to satisfying the constraints)
+ }
+** Learning Theory
+** Regularization and Model Selection
+
+*** Model Selection
+
+**** Hold-out Cross Validation or Simple Cross Validation
+     Let $\MM$ be a set of models. Then given a training set $S$, we can select a model as follows:
+
+ 1. Randomize the training set and split it in two sets
+    $S_{train}$($75\%$ of $S$) and $S_{test}$.
+ 2. Train each model $M_i$ on $S_{train}$, to get some hypothesis $h_i$;
+ 3. Pick the hypothesis with the smallest test error
+    i.e. $$\arg\min_{h_i}\frac{1}{n'}\sum_{j=1}^{n'}L(y_j,h_i(\v x_j))\quad\tx{or}\quad\arg\min_{h_i}\q1{n'}\sum_{j=1}^{n'}1\{h_i(\v x_j)\ne y_j\}$$
+    for $(y_j,\v x_j)\in S_{test}$ and $|S_{test}|=n'$.
+ 4. Then retrain that model using the entire training set $S$.
+
+**** \(k\)-fold Cross Validation
+ When the data is scarce, then we can use the following techinque:
+
+ 1. Randomize $S$ then split $S$ into $k$(typically we take $k=10$)
+    disjoint subsets $S_1,\ldots ,S_k$ of equal size.
+
+ 2. For each model $M_i$, for each subset $S_j$, consider it as test data
+    and consider the remaining data as training data and get some
+    hypothesis $h_{ij}$ and compute
+    $\frac{1}{n'_j}\sum_{k=1}^{n'_j}L(y_k,h_{ij}(\v x_k))$ on $S_j$. Then
+    take average over $S_j$'s.
+
+ 3. Pick the model $h_{i'}$ with lowest test error
+    i.e. where $$i'=\arg\min_{i}\q1k\sum_{j=1}^k\frac{1}{n'_j}\sum_{p=1}^{n'_j}L(y_p,h_{ij}(\v x_p)).$$
+
+ 4. Then retrain that model using the entire training set $S$.
+
+    If $k=|S|$, then it is called 'leave-one-out cross validation'.
+
+*** Feature Selection
+ We can use partial correlation to choose features.
+
+**** Wrapper Model Feature Selection
+***** Forward Search $O(n^2)$:
+ Suppose there are $n$ features. Then the forward search algorithm for feature selection is as follows:
+ 1. Initialize $\FF=\ns$.
+ 2. Repeat {
+    1. For $i=1,\ldots,n$ if $i\not\in\FF$, let $\FF_i=\FF\u\set{i}$ and train the learning algorithm using the features in $\FF_i$ and estimate its generalization error.
+    2. Set $\FF$ to be the best feature subset found on step (i).
+    }
+ 3. Select and output the best feature subset that was evaluated during the entire search procedure. 
+
+***** Backward Search $O(n^2)$:
+ Similarly *backward search* starts off with $\FF=\set{1,\ldots,n}$ and repeatedly deletes features one at a time.
+
+**** Filter Feature Selection
+*** Bayesian Statistics and Regularization
+
+ Consider the case of linear regression. Now suppose that $\bm{\th}$
+ follows some prior distibution $\DD$ and $Y$ follows some distribution
+ with parameter $h_{\bm{\th}}(\v x)$, for example $\bm{\th}^T\v x$. Then,
+ for $S=\set{(y_i,\v x_i)}_{i=1}^n$
+ \begin{align*}
+ p(\bm{\th}|S)=&\frac{p(S|\bm{\th})p(\bm{\th})}{p(S)}\\
+ =&\frac{(\prod_{i=1}^{n}p(y_i|\v x_i,\bm{\th}))p(\bm{\th})}{\int_{\Th}(\prod_{i=1}^{n}p(y_i|\v x_i,\bm{\th}))p(\bm{\th})d\bm{\th}}.
+ \end{align*}
+ Then give any test example $\v x$,
+ $$p(y|\v x,S)=\int_{\Th}p(y|\v x,\bm{\th})p(\bm{\th}|S)d\bm{\th}$$ Hence
+ $$E[y|\v x,S]=\int_yyp(y|\v x,S)dy.$$ But in general it is very
+ difficult compute these high-dimensional integration. Thus in practice
+ we use the MLE estimate of $\bm{\th}$ called the MAP(maximum a
+ posteriori) estimate of $\bm{\th}$ given by
+ $$\bm{\th}_{MAP}=\arg\max_{\bm{\th}}p(\bm{\th}|S)=\arg\max_{\vth}\q{p(S|\vth)p(\vth)}{p(S)}=\arg\max_{\bm{\th}}\inp{\prod_{i=1}^{n}p(y_i|\v x_i,\bm{\th})}p(\bm{\th}).$$
+ In practical applications, we generally take $\bm{\th}\sim\NN(\v0,\t^2I)$.
+** The Perceptron and Large Margin Classifiers
+ *Online Learning:* Suppose we are given a sequence of examples $\set{(y_i,\v x_i)}_{i=1}^n$. At the \(i\)-th stage show the algorithm $\v x_i$, if the algorithm the did not predict correctly i.e. $\h y\ne y_i$ then update the parameters else continue.
+ For example, perceptron learning algorithm makes predictions according to
+ $$h_{\vth}(\vx)=g(\vth^T\vx)$$
+ where
+ $$g(z)=\case{1&\tx{if }z\ge0\\-1&\tx{if }z<0.}$$
+ Now given a training example $(y,\vx)$, if $h_{\vth}(\vx)=y$, then make no changes to the parameters else perform the update
+ $$\vth:=\vth+y\vx.$$
+
+ #+begin_theorem
+ Let a sequence of examples $\set{(y_i,\vx_i):1\le i\le n}$ is given. Suppose that $\norm{\vx_i}\le D,\A i$ and $\E$ a unit-vector $\v u$ such that $y_i(\v u^T\vx_i)\ge\g,\A i$ (i.e. $\v u^T\vx_i\ge\g$ if $y_i=1$ and $\v u^T\vx_i\le -\g$ if $y_i=-1$, so that $\v u$ separates the data with a margin of at least $\g$). Then the total number of mistakes the perceptron algorithm makes on this sequence is at most $(D/\g)^2$. 
+ #+end_theorem
+
+** Unsupervised Learning
+*** The \(k\)-means Clustering Algorithm
+
+ In the clustering problem, we are given a training set $\set{\v x_i}_{i=1}^{n}$ without any label $y_i$. Suppose that we know there is $k$ clusters in the given data. Then the \(k\)-means clustering algorithm is as follows:
+
+ 1. Choose some $\ep>0$.
+ 2. Initialize cluster centroids $\bm{\mu}_1,\bm{\mu}_2,\ldots ,\bm{\mu}_k\in\R^p$ randomly.
+ 3. For every $i$, set $c_i:=\arg\min_j\norm{\v x_i-\bm{\mu}_j}^2$.
+ 4. For each $j$, set $\bm{\mu}_j:=\frac{\sum_{i=1}^{n} 1\{c_i=j\}\v x_i}{\sum_{i=1}^{n}1\{c_i=j\}}$.
+ 5. If for all $j$, $\norm{\bm{\mu}_{j,new}-\bm{\mu}_{j,old}}<\ep$, then return $\bm{\mu}_j$'s. Otherwise goto step 3.
+
+ \(k\)-means algorithm is guaranteed to converge. Consider the function
+ $$J(c,\bm{\mu})=\sum_{i=1}^{n}\norm{\v x_i-\bm{\mu}_{c_i}}^2.$$ Then
+ \(k\)-means algorithm is a coordinate descent with respect to $\bm{\mu}$
+ and $c$. Hence it converges.
+
+ Since $J$ is non-convex, so coordinate descent may not converge to the
+ global minimum. Hence run the algorithm multiple time with different
+ random initialization and pick the one that gives the lowest $J$.
+
+*** The EM Algorithm
+
+ Suppose that we are given a training set $\set{\v x_1,\ldots ,\v x_n}$ consist of $n$ independent examples. But the distribution $\v x_i$ depends on some hidden variable $\v Z_i$ i.e. $\v X_i|Z_{i_j}=1\sim\DD_j$ and $\v Z_i\sim$ Multinoulli($\bm{\f}$)[fn:3].
+ Our objective is to find the parameters of $\FF$ and $\DD_j$'s. So log-likelihood function of joint distribution of $\v X_i$'s is
+ \begin{align*}
+ \ell(\bm{\th})=&\log\inp{\prod_{i=1}^{n}P(\v x_i;\bm{\th})}=\sum_{i=1}^{n}\log P(\v x_i;\bm{\th})\\
+ =&\sum_{i=1}^{n}\log\sum_{j=1}^{k} P(\v x_i,Z_{i_j}=1;\bm{\th})\\
+ =&\sum_{i=1}^{n}\log\sum_{j=1}^{k}Q(Z_{i_j}=1) \frac{P(\v x_i,Z_{i_j}=1;\bm{\th})}{Q(Z_{i_j}=1)}\\
+ \ge&\sum_{i=1}^{n}\sum_{j=1}^{k}Q(Z_{i_j}=1) \log\frac{P(\v x_i,Z_{i_j}=1;\bm{\th})}{Q(Z_{i_j}=1)}.
+ \end{align*}
+ Note that $\sum_{j=1}^{k}Q(Z_{i_j})=1$ and hence the last inequality is a consequence of Jensen's inequality and that log is a concave function. Hence the last expression is a lower-bound of $\ell$. So to make the bound tight we need equality and equality holds if
+ $\frac{P(\v x_i,Z_{i_j}=1;\bm{\th})}{Q(Z_{i_j}=1)}$ is constant for all $j$ i.e. $Q(Z_{i_j}=1)\propto P(\v x_i,Z_{i_j}=1;\bm{\th})$. Also since
+ $\sum_{j=1}^{k}Q(Z_{i_j})=1$, we can take
+ \begin{align*}
+ Q(Z_{i_j}=1)=&\frac{P(\v x_i,Z_{i_j}=1;\bm{\th})}{\sum_{j=1}^{k}P(\v x_i,Z_{i_j}=1;\bm{\th})}\\
+ =&\frac{P(\v x_i,Z_{i_j}=1;\bm{\th})}{P(\v x_i;\bm{\th})}\\
+ =&P(Z_{i_j}=1|\v x_i;\bm{\th}).
+ \end{align*}
+ Hence this choice of $Q$ gives a lower bound of $\ell$ that we have to maximize. Hence the EM algorithm is, initialize all the parameters $\bm{\th}$ by $\bm{\th}_0$
+
+ *E-Step:* For each $i$, set
+ $Q_t(Z_{i_j}=1)=P(Z_{i_j}=1|\v x_i;\bm{\th}_t)$ for all $j$.
+
+ *M-Step:* Set
+ $\bm{\th}_{t+1}:=\arg\max_{\bm{\th}}\sum_{i=1}^{n}\sum_{j=1}^{k}Q_t(Z_{i_j}=1) \log\frac{P(\v x_i,Z_{i_j}=1;\bm{\th})}{Q_t(Z_{i_j}=1)}$.
+
+ Now note that
+ \begin{align*}
+ \ell(\bm{\th}_{t+1})\ge&\sum_{i=1}^{n}\sum_{j=1}^{k}Q_t(Z_{i_j}=1) \log\frac{P(\v x_i,Z_{i_j}=1;\bm{\th}_{t+1})}{Q_t(Z_{i_j}=1)}\\
+ \ge&\sum_{i=1}^{n}\sum_{j=1}^{k}Q_t(Z_{i_j}=1) \log\frac{P(\v x_i,Z_{i_j}=1;\bm{\th}_t)}{Q_t(Z_{i_j}=1)}\\
+ =&\ell(\bm{\th}_t).
+ \end{align*}
+ The second inequality follows from the fact that
+ $$\bm{\th}_{t+1}=\arg\max_{\bm{\th}}\sum_{i=1}^{n}\sum_{j=1}^{k}Q_t(Z_{i_j}=1) \log\frac{P(\v x_i,Z_{i_j}=1;\bm{\th})}{Q_t(Z_{i_j}=1)}.$$
+ if $\norm{\vth_{t+1}-\vth_t}<\ep$ then stop else repeat E & M steps.
+
+**** Mixture of Gaussians
+
+ Suppose that we are given a training set $\set{\v x_1,\ldots ,\v x_n}$ consist of $n$ independent examples. But the distribution $\v X_i$  depends on some hidden variable $\v Z_i$ i.e. $\v Z_i\sim$ Multinoulli($\bm{\f}$) and $\v X_i|Z_{i_j}=1\sim\NN(\bm{\mu}_j,\S_j)$. Our objective is to find the parameters $\bm{\th}=(\bm{\f},\bm{\mu}_j,\S_j)$. Hence we apply EM algorithm:
+
+ *E-Step:* For each $i$, set 
+ \begin{align*}
+ Q_t(Z_{i_j}=1)=&P(Z_{i_j}=1|\v x_i;\bm{\th}_t)=\frac{P(\v x_i,Z_{i_j}=1;\bm{\th}_t)}{\sum_{j=1}^{k}P(\v x_i,Z_{i_j}=1;\bm{\th}_t)}\\
+ =&\frac{P(\v x_i|Z_{i_j}=1;\bm{\th}_t)P(Z_{i_j}=1)}{\sum_{j=1}^{k}P(\v x_i|Z_{i_j}=1;\bm{\th}_t)P(Z_{i_j}=1)}
+ \end{align*}
+ for all $j$.
+
+ *M-Step:* Now we want to maximize the quantity
+ \begin{align*}
+ &\sum_{i=1}^{n}\sum_{j=1}^{k}Q_t(Z_{i_j}=1) \log\frac{P(\v x_i,Z_{i_j}=1;\bm{\th})}{Q_t(Z_{i_j}=1)}\\
+ =&\sum_{i=1}^{n}\sum_{j=1}^{k}Q_t(Z_{i_j}=1) \log\frac{P(\v x_i|Z_{i_j}=1;\bm{\th})P(Z_{i_j}=1;\bm{\f})}{Q_t(Z_{i_j}=1)}\\
+ =&\sum_{i=1}^{n}\sum_{j=1}^{k}Q_t(Z_{i_j}=1) \log\frac{\frac{1}{(2\pi)^{n /2}|\S_j|^{1 /2}}\exp\inp{-\frac{1}{2}(\v x_i-\bm{\mu}_j)^T\S_j^{-1}(\v x_i-\bm{\mu}_j)}\f_j}{Q_t(Z_{i_j}=1)}
+ \end{align*}
+
+ Taking derivative w.r.t. $\bm{\mu}_l$ we have
+ \begin{align*}
+ 0 &= \V_{\bm{\mu}_l} \sum_{i = 1}^n \sum_{j = 1}^k Q_t (Z_{i_j} = 1)\log \frac{\frac{1}{(2 \pi)^{n / 2} | \S_j |^{1 / 2}} \exp \left( -\frac{1}{2} (\bm{\v{x}_{}}_i - \bm{\mu}_j)^T \S_j^{- 1}(\v{x}_i - \bm{\mu}_j) \right) \cdot \phi_j}{Q_t (Z_{i_j} = 1)}\\
+ &= - \V_{\bm{\mu}_l} \sum_{i = 1}^n \sum_{j = 1}^k Q_t (Z_{i_j} = 1)\frac{1}{2} (\bm{\v{x}}_i - \bm{\mu}_j)^T \S_j^{- 1}(\v{x}_i - \bm{\mu}_j)\\
+ &= \frac{1}{2} \sum_{i = 1}^n Q_t (Z_{i_l} = 1) \V_{\bm{\mu}_l} (2\bm{\mu}_l^T \S_l^{- 1} \v{x}_i - \bm{\mu}_l^T\S_l^{- 1} \bm{\mu}_l)\\
+ &= \sum_{i = 1}^n Q_t (Z_{i_l} = 1) (\S_l^{- 1} \v{x}_i - \S_l^{-1} \bm{\mu}_l)
+ \end{align*}
+ Hence we have $$\bm{\mu}_l = \frac{\sum_{i = 1}^n Q_t (Z_{i_l} = 1)
+ \v{x}_i}{\sum_{i = 1}^n Q_t (Z_{i_l} = 1)}$$. Now to find $\f_j$, we have to maximize $$\sum_{i = 1}^n \sum_{j = 1}^k Q_t (Z_{i_j} = 1) \log \phi_j.$$ Also we need to satisfy the condition $\sum_{j = 1}^k \phi_j = 1$, hence we construct the Lagrangian
+ $$\mathcal{L} (\bm{\phi}) = \sum_{i = 1}^n \sum_{j = 1}^k Q_t (Z_{i_j} = 1) \log \phi_j + \lambda \left( \sum_{j = 1}^k \phi_j - 1 \right)$$
+ where $\l$ is the Lagrange multiplier. Taking derivatives, we have
+ $$\frac{\partial \mathcal{L} (\bm{\phi})}{\partial \phi_j} = \sum_{i =
+ 1}^n \frac{Q_t (Z_{i_j} = 1)}{\phi_j} + \lambda$$ Hence solving we have
+ $$\phi_j = \frac{\sum_{i = 1}^n Q_t (Z_{i_j} = 1)}{\sum_{i = 1}^n \sum_{j =
+ 1}^k Q_t (Z_{i_j} = 1)} = \frac{1}{m} \sum_{i = 1}^n Q_t (Z_{i_j} = 1) .$$
+ Similarly we can find
+ $$\S_j = \frac{\sum_{i = 1}^n Q_t (Z_{i_j} = 1) (\v{x}_i -
+ \bm{\mu}_j) (\v{x}_i - \bm{\mu}_j)^T}{\sum_{i = 1}^n Q_t
+ (Z_{i_j} = 1)}$$
+
+*** The Factor Analysis Model
+
+ Suppose that we are given a training set $\set{\v x_i}_{i=1}^n$ consist
+ of $n$ independent examples and $p\gg n$. Here it is difficult to model
+ the data is coming from a single normal distribution, since $\S$ becomes
+ singular. In this case we can limit number of variables so that $\S$
+ become non-singular then we can use a single Gaussian.
+
+ Another model can be a mixture of Gaussians. So here we assume that
+ $\v Z\sim\NN_k(\v 0,I)$ and $\v X|\v Z\sim\NN_p(\bm{\mu}+\L\v Z,\Y)$ and
+ $\Y$ is a diagonal matrix. Hence
+ \begin{align*}
+ &\v Z\sim \NN(\v0,I)\\
+ &\bm{\ep}\sim\NN(\v0,\Y)\\
+ &\v X\sim\bm{\mu}+\L\v Z+\bm{\ep}
+ \end{align*} where $\bm{\ep}$ and $\v Z$ are independent. Now $\v X$ and $\v Z$
+ have a joint normal distribution. Hence
+ $$\bmat{\v Z\\\v X}\sim\NN_{k+p}(\bm{\mu}_{zx},\S)$$ where
+ $$\bm{\mu}_{zx}=E\bmat{\v Z\\\v X}=\bmat{E\v Z\\E\v X}=\bmat{E\v Z\\E[\bm{\mu}+\L\v Z+\bm{\ep}]}=\bmat{\v 0\\\bm{\mu}}$$
+ and
+ \begin{align*}
+ \S=&E\inp{\bmat{\v Z-E\v Z\\\v X-E\v X}\bmat{\v Z-E\v Z\\\v X-E\v X}^T}\\
+ =&\bmat{E(\v Z-E\v Z)(\v Z-E\v Z)^T &E(\v Z-E\v Z)(\v X-E\v X)^T\\E(\v X-E\v X)(\v Z-E\v Z)^T &E(\v X-E\v X)(\v X-E\v X)^T}\\
+ =&\bmat{I&\L^T\\\L&\L\L^T+\Y}.
+ \end{align*}
+
+ We can use EM algroithm to estimate the parameters
+ $\bm{\th}=(\bm{\mu},\L,\Y)$.
+
+ *E-Step:*
+ $\v Z|\v x_i;\bm{\th}_t\sim\NN(\bm{\mu}_{\v Z|\v x_i},\S_{\v Z|\v x_i})$
+ where $\bm{\mu}_{\v Z|\v x_i}=\L^T(\L\L^T+\Y)^{-1}(\v x_i-\bm{\mu})$,
+ and $\S_{\v Z|\v x_i}=I-\L^T(\L\L^T+\Y)^{-1}\L$.
+
+ *M-Step:*
+ $$\bm{\th}_{t+1}=\arg\max_{\bm{\th}}\sum_{i=1}^{n}\int_{\v z}P(\v z|\v x_i;\bm{\th}_t)\log\frac{P(\v x_i,\v z;\bm{\th})}{P(\v z|\v x_i;\bm{\th}_t)}d\v z.$$
+
+*** Principal Component Analysis(PCA)
+
+ Suppose that we are given a very high dimensional data set $\set{\v x_i}_{i=1}^{n}$ and we want to reduce the data to \(k\)-dimesional subspace(one reason can be existence of linearly dependent variables). To do so, we have to find a \(k\)-dimensional subspace in which the data has maximum variance. So first we normalize the given data i.e. $z_{i_j}=\frac{x_{i_j}-\mu_j}{\s_j}$ where $\mu_j=\frac{1}{n}\sum_{i=1}^{n}x_{i_j}$ and $\s^2_j=\frac{1}{n}(x_{i_j}-\mu_j)^2$. Now our objective is to find a unit length vector $\v u$ such that it maximize
+ $$\frac{1}{n}\sum_{i=1}^{n}(\v z_i^T\v u)^2=\frac{1}{n}\sum_{i=1}^{n}\v u^T\v z_i\v z_i^T\v u=\v u^T\inp{\frac{1}{n}\sum_{i=1}^{n}\v z_i\v z_i^T}\v u=\v u^T\S\v u.$$
+ Now we know that for a symmetric matrix $A$, we can decompose it as $A=U\L U^T$ where $U$ is a orthogonal matrix and $\L$ is diagonal matrix with $\L_{ii}\ge\L_{jj}$ for $i>j$. Note that then each $\L_{ii}$ is an eigenvalue of $A$ and $\v u_1$ is the corresponding eigenvector of $\L_{ii}$.
+
+ Now since $\S$ is symmetric psd, $\L_{ii}\ge0$. Hence $\v u^T\S\v u$ is maximized if we take $\v u=\v u_1$ and $\v u^T\S\v u=\L_{11}$. Since we want \(k\)-dimensional subspace we will take first $k$ eigenvectors of $\S$. These vectors $\v u_1,\ldots ,\v u_k$ are called the first $k$ principal components of the data.
+
+ Hence principal components are first \(k\)-column vectors of $V^T$ where $\v X=U\S V^T$, the SVD of $\v X$.
+
+ *Applications:* See notes
+
+*** Independent Component Analysis(ICA)
+
+ Suppose that we are given a dataset $\set{\v x_i}_{i=1}^n$ and we know
+ that there are $p$ Independent sources and the given data is a linear
+ combination of the information coming from the sources
+ i.e. $\v x_i=A\v s_i, \A i$. Now suppose that $\v S$ has density
+ $f_{\v X}(\v S)$. Now since the sources are independent, hence
+ $f_{\v S}(\v S)=\prod_{i=1}^{p}f_S(s_i)$. Now, $\v X$ has density
+ $$f_{\v X}(\v x)=f_{\v S}(A^{-1}\v x)|A^{-1}|=\prod_{i=1}^{p}f((A^{-1})_{i:}\v x)|A^{-1}|.$$
+ Now take $W=A^{-1}$ and $\v w_j^T=(W)_{j:}$. Hence the log-likelihood
+ function is
+ $$\ell(W)=\sum_{i=1}^{n}\inp{\sum_{j=1}^{p}\log f_S(\v w_j^T\v x_i)+\log|W|}.$$
+ Now we can use stochastic gradient descent to find the MLE estimate of
+ $W$. If we choose $F_S(s)=\frac{1}{1+e^{-s}}$ to be the sigmoid function
+ then the update rule is
+ \begin{align*}
+ &W:=W+\a\V_W\ell(W)\\
+ \im&W:=W+\a\inp{\bmat{1-2F_S(\v w_1^T\v x_i)\\\vdots\\1-F_S(\v w_n^T\v x_i)}\v x_i^T+(W^T)^{-1}}
+ \end{align*}
+ since $\V_W|W|=|W|(W^{-1})^T$. After the algroithm converges, we then
+ compute $\v s_i=W\v x_i$ to recover the original sources.
+** Classification and Regression Trees
+
+ Suppose we are given a training set $\set{(y_i,\v x_i)}_{i=1}^{n}$ and
+ $y$ is continuous variable. Then decision tree algorithm is as follows:
+
+ 1. Split the input space $\v X$ into two regions
+    $$R_1(j,s)=\set{\v X|X_{j}\le s}\quad\text{and}\quad R_2(j,s)=\set{\v X|X_j>s}$$
+    and pick $j,s$ such that the following holds
+    $$\arg\min_{j,s}\inb{\sum_{\v x_i\in R_1(j,s)}(y_i-c_1)^2+\sum_{\v x_i\in R_2(j,s)}(y_i-c_2)^2},$$
+    where $c_1=\fn{avg}(y_i|\v x_i\in R_1(j,s))$ and
+    $c_2=\fn{avg}(y_i|\v x_i\in R_2(j,s))$.
+ 2. If some region has less than $M$(some pre determined threshold)
+    points then do not split that region otherwise recrusively split each
+    region upto some max depth and generate a large tree $T_0$.
+ 3. /Pruning tree:/ Fix some $\a\ge0$. Now Recursively from bottom to up,
+    select a height 1 subtree $T\c T_0$. Suppose index $m$ denotes the
+    terminal nodes of $T$ and $T_m$ denotes the region $R_m$ and let
+    $|T|$ denotes the number of terminal nodes in $T$ and compute the
+    following:
+    \begin{align*}
+    N_m=&\#\set{\v x_i\in\R_m},\\
+    c_m=&\frac{1}{N_m}\sum_{\v x_i\in R_m}y_i,\\
+    Q_m(T)=&\frac{1}{N_m}\sum_{\v x_i\in\R_m}(y_i-c_m)^2,\\
+    C_{\a}(T)=&\frac{1}{n}\sum_{m=1}^{|T|}N_mQ_m(T)+\a|T_0|.
+    \end{align*}
+    If $C_{\a}(T)\ge \frac{1}{n}\sum_{\v x_i\in \uu R_i}(y_i-\bar y)^2+\a (|T_0|-|T|)$
+    then we collapse the terminal nodes.
+* Implementations
+** Logistic Regression
+#+BEGIN_SRC python
+import numpy as np
+Z = np.dot(w.T, X)+b
+A = sigmoid(z)
+dZ = A - Y
+dW = 1/m X dZ.T
+db = 1/m np.sum(dz)
+
+W = W - alpha dW
+b = b - alpha db
+#+END_SRC
+
+* Bogus
+*** Probabilistic Interpretation
+
+ Now suppose that we have the data
+ $\{(y_i,\v x_i)|1\le i\le n,y_i\in\{0,1\}\}$ and
+ $\v y=X\bm{\th}+\bm{\ep}$. Now,
+ $\bm{\ep}\sim N(\v0,\s^2I)\im \v y\sim N(X\bm{\th},\s^2I)$. So,
+ $\hat{\bm{\th}}=(X'X)^{-1}X'X\hat{\bm{\th}}=(X'X)^{-1}X'\v y=N(\bm{\th},\s^2(X'X)^{-1})$.
+
+ \begin{align*}
+ \fn{MSE}(\hat Y)=&E(\hat Y-Y)^2=E(\hat Y-E(\hat Y)+E(\hat Y)+Y)^2\\
+ &=E(\hat Y-E(\hat Y))^2+2E[(\hat Y-E(\hat Y))(E(\hat Y)-Y)]+E(E(\hat Y)-Y)^2\\
+ &=E(\hat Y-E(\hat Y))^2+2(E(\hat Y)-E(\hat Y))(E(\hat Y)-Y)+(E(\hat Y)-Y)^2\\
+ &=\var(\hat Y)+[\fn{Bias}(\hat Y)]^2
+ \end{align*}
+
+ Our objective is to make variance small for training data and make bias
+ small for test data.
+ 
+*** The Exponential Family
+ We define an exponential family of probability distributions as those distributions whose density have the following general form:
+ $$f(y|\bm{\eta})=h(y)\exp\inp{\bm{\eta}^TT(y)-A(\bm{\eta})}$$ 
+ where $\bm{\eta}$ is referred to as canonical/natural parameter and $T$ is the sufficient statistics for $\bm{\eta}$.
+*** Binary Classification 
+ Now we can write Bernoulli($p$) distribution as:
+
+ \begin{align*}
+ f(y|p)&=p^y(1-p)^{1-y}\\
+ &=\exp((y\log p+(1-y)\log(1-p))\\
+ &=\exp\inp{\log\inp{\frac{p}{1-p}}y+\log(1-p)}
+ \end{align*}
+
+ Comparing with the pdf of exponential family, we have,
+ $$\log\inp{\frac{p}{1-p}}=\eta=\bm{\th}^T\v x\im p=\frac{1}{1+e^{-\bm{\th}^T\v x}}$$
+ and $h(y)=1$ and $A(\eta)=-\log(1-p)=\log(1+e^{\eta})$ and $T(y)=y$.
+ Also $p=E(y|\v x;\bm{\th})=\frac{1}{1+e^{-\bm{\th}^T\v x}}$.
+
+
+*** Regression Problem
+ Now we can write $N(\mu,\s^2)$ distribution as:
+ $\alpha $
+ \begin{align*}
+ f(y|\mu,\s^2)&=\frac{1}{\s\sqrt{2\pi}}e^{-\frac{1}{2\s^2}(y-\mu)^2}\\
+ &=\frac{1}{\sqrt{2\pi}}\exp\inp{\frac{\mu}{\s^2}y-\frac{1}{2\s^2}y^2-\frac{1}{2\s^2}\mu^2-\log\s}
+ \end{align*}
+
+ Hence comparing we have
+ $\bm{\eta}=\inp{\frac{\mu}{\s^2},-\frac{1}{2\s^2}}', T(y)=(y,y^2)',A(\bm{\eta})=\frac{\mu^2}{2\s^2}+\log\s=-\frac{\eta_1^2}{4\eta_2}-\frac{1}{2}\log(-2\eta_2)$.
+ Now, if $\s^2$ is known and $\mu$ depends on $\v x$ linearly, then
+ $$f(y|\mu)=\frac{1}{\sqrt{2\pi}}\exp\inp{-\frac{1}{2\s^2}y^2}\exp\inp{\frac{\mu}{\s^2}y-\frac{1}{2\s^2}\mu^2-\log\s}$$
+ Hence comparing we have  $\mu=\eta=\bm{\th}^T\v x,T(y)=\frac{y}{\s^2},A(\eta)=\frac{1}{2\s^2}\eta^2-\log\s, h(y)=\frac{1}{\sqrt{2\pi}}\exp\inp{-\frac{1}{2\s^2}y^2}$. Also $\mu=E(y|\v x;\bm{\th})=\bm{\th}^T\v x$.
+
+ Now suppose that we have the data $\{(y_i,\v x_i)|1\le i\le n\}$ and
+ $Y\sim N(h_{\bm{\th}}(\v x), \s^2)$. From previous calculations we have,
+ $h_{\bm{\th}}(\v x)=\bm{\th}^T\v x$. Hence, likelihood function is
+ $$L(\bm{\th})=\prod_{i=1}^{n}f(y_i;\v
+ x_i,\bm{\th})=\prod_{i=1}^{n}\frac{1}{\s\sqrt{2\pi}}e^{-\frac{1}{2\s^2}(y_i-\bm{\th}^T\v
+ x_i)^2}$$
+ Hence, the log-likelihood function is,
+ $$\ell(\bm{\th})=\log L(\bm{\th})=-\frac{n}{2}\log(2\pi\s^2)-\frac{1}{2\s^2}\sum_{i=1}^{n}(y_i-\bm{\th}^T\v x_i)^2$$
+ $$\im\dd{\ell}{\th_j}=\frac{1}{\s^2}\sum_{i=1}^{n}(y_i-\bm{\th}^T\v x_i)x_{i_j}.$$
+ Hence we can use stochastic gradient ascent to maximize $\ell$.
+
+*** Softmax Regression
+ Since we have $k$ classes we can denote the outcome in \(i\)-th class
+ by $\v y=(0,\cdots,0,1,0\cdots ,0)'$ where $y_i=1$ and $y_j=0$ if
+ $j\ne i$. Now we can write Multinoulli($p_1,\ldots ,p_{k-1}$)
+ distribution as [fn:1]
+
+ \begin{align*}
+  & f(y|p_1,\ldots ,p_{k-1})\\
+ =&p_1^{y_1}p_2^{y_2}\cdots p_{k-1}^{y_{k-1}}p_k^{y_k}\\
+ =&p_1^{y_1}p_2^{y_2}\cdots p_{k-1}^{y_{k-1}}p_k^{1-\sum_{i=1}^{k-1}y_i}\\
+ =&\exp\inp{y_1\log \inp{\frac{p_1}{p_k}}+y_2\log \inp{\frac{p_2}{p_k}}+\cdots +y_{k-1}\log \inp{\frac{p_{k-1}}{p_k}}+\log p_k}\\
+ \end{align*}
+
+ Comparing with the pdf of exponential family, we have,
+ $$\bm{\eta}=\bmat{\log\inp{\frac{p_1}{p_k}}\\\log\inp{\frac{p_2}{p_k}}\\\vdots\\\log\inp{\frac{p_{k-1}}{p_k}}}$$
+ and $h(y)=1$ and $A(\eta)=-\log p_k$ and $T(\v y)=\v y$. Also define
+ $\eta_k=\log(p_k /p_k)=0$. Hence
+ $$\frac{p_i}{p_k}=e^{\eta_i}\im p_ke^{\eta_i}=p_i\im p_k\sum_{i=1}^{k}e^{\eta_i}=\sum_{i=1}^{k}p_i=1\im p_k=\frac{1}{\sum_{i=1}^{k}e^{\eta_i}}.$$
+ Hence $$p_i=\frac{e^{\eta_i}}{\sum_{j=1}^{k}e^{\eta_j}}.$$ 
+ Hence we have,
+ $$p_i=\frac{e^{\bm{\th}_i^T\v x}}{\sum_{j=1}^{k}e^{\bm{\th}_j^T\v x}},$$
+ where $\eta_i=\bm{\th}_i^T\v x$ and $\bm{\th}_i\in\R^{p+1}$ for $i=1,\ldots ,k-1$ and $\bm{\th}_k=\v0$ since $\eta_k=0$. Hence,
+ $$E(\v y|\v x;\bm{\th}_1,\ldots ,\bm{\th}_{k-1})=\bmat{p_1\\p_2\\\vdots\\p_{k-1}}=\bmat{\frac{e^{\bm{\th}_1^T\v x}}{\sum_{j=1}^{k}e^{\bm{\th}_j^T\v x}}\\\frac{e^{\bm{\th}_2^T\v x}}{\sum_{j=1}^{k}e^{\bm{\th}_j^T\v x}}\\\vdots\\\frac{e^{\bm{\th}_{k-1}^T\v x}}{\sum_{j=1}^{k}e^{\bm{\th}_j^T\v x}}}$$
+
+* Papers
+  ICLR papers in last few years
+  NIPS
+  ICML
+
+* Topics to Learn
+** Hopfield Networks
+** Restricted Boltzmann Machines
+** GPT-3
+** t-SNE
+* Some Ideas
+  - Humans are beings who can create problems and try to solve them. We invented
+    computers to solve some intricate problems that are tedious to do by
+    hand. Now I have one problem that is how to create problems. If I can learn
+    this we can enable computers to create problems and solve them efficently.
+  - I want to create a virtual mind that can learn about everything how to use
+    computer and internet and learn and create problems and solve them.
+  - Brain can remember \(7\pm 2\) items simultaneously.

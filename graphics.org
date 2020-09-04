@@ -1,0 +1,8 @@
+* Rasterization
+** Z Buffer Algorithm
+#+BEGIN_SRC
+for each object
+    for each
+#+END_SRC
+* Ray Tracing
+

@@ -1,0 +1,519 @@
+* C++
+** Class
+#+BEGIN_SRC cpp
+  #include <iostream>
+
+  class A {
+
+    int var; //by default access modifer of any class is private
+
+  public:
+    // constructor
+    A(int x, int y, int z)
+      :publicVarA(x), protectedVarA(y), privateVarA(z)
+    { std::cout << "A is initialized" << std::endl; }
+
+    // copy constructor
+    A(A &a)
+      :publicVarA(a.publicVarA), protectedVarA(a.protectedVarA), privateVarA(a.privateVarA)
+    { std::cout << "Copy constructor of A gets called." << std::endl; }
+
+    // destructor
+    virtual ~A(){ std::cout << "A is to be destroyed." << std::endl; }
+    
+    static int getType(){ return type; } // class function
+
+    virtual void print(){ std::cout << "Hello from A." << std::endl; }
+
+    void printPrivateVarA(){ std::cout << "privateVarA = " << privateVarA << std::endl; }
+
+  public: // accessed everywhere
+    int publicVarA;
+    static int type; // class variable
+
+  protected: // accessed from this class, derived class and from friend
+    int protectedVarA;
+
+  private: // only accessed within the class
+    int privateVarA;
+
+  };
+
+  int A::type = 0; // initialize class variable (can't initialize in the class itself)
+
+
+  class B: public A{
+
+  public:
+
+    B(int x, int y, int z, int u, int v, int w)
+      :publicVarB(x), protectedVarB(y), privateVarB(z), A(u,v,w)
+    { std::cout << "B is initialized" << std::endl; }
+
+    B(B &b)
+      :publicVarB(b.publicVarB), protectedVarB(b.protectedVarB), privateVarB(b.privateVarB), A(b)
+    { std::cout << "Copy constructor of B gets called." << std::endl; }
+
+    virtual ~B(){ std::cout << "B is to be destroyed." << std::endl;}
+
+    void print(){
+      std::cout << "Hello from B." << std::endl;
+      std::cout << "publicVarA = " << (*this).publicVarA << std::endl;
+      std::cout << "protectedVarA = " << this->protectedVarA << std::endl;
+      printPrivateVarA();
+      std::cout << "publicVarB = " << (*this).publicVarB << std::endl;
+      std::cout << "protectedVarB = " << this->protectedVarB << std::endl;
+      std::cout << "privateVarB = " << privateVarB << std::endl; 
+    }
+
+  public:
+    int publicVarB;
+    static int type; // static variable of the derived class
+
+  protected:
+    int protectedVarB;
+
+  private:
+    int privateVarB;
+
+    friend void friendFunc(B b);
+
+  };
+
+  int B::type = 1;
+
+  void friendFunc(B b){
+    std::cout << "This is from friendFunc" << std::endl;
+    std::cout << "publicVarB = " << b.publicVarB << std::endl;
+    std::cout << "protectedVarA = " << b.protectedVarA << std::endl;
+    std::cout << "This copied object will now get destroyed." << std::endl;
+  }
+
+  int getType(void *p, int type){
+    if (type == 1){ return (*(B*)p).type;}
+    else{ return (*(A*)p).type;}
+  }
+
+  int main(){
+    std::cout << "Hello World!" << std::endl;
+    B b(1,2,3,4,5,6);
+    b.print();
+    friendFunc(b);
+    std::cout << getType(&b, b.type) << "\n";
+  }
+
+  /*
+  Hello World!
+  A is initialized
+  B is initialized
+  Hello from B.
+  publicVarA = 4
+  protectedVarA = 5
+  privateVarA = 6
+  publicVarB = 1
+  protectedVarB = 2
+  privateVarB = 3
+  Copy constructor of A gets called.
+  Copy constructor of B gets called.
+  This is from friendFunc
+  publicVarB = 1
+  protectedVarA = 5
+  This copied object will now get destroyed.
+  B is to be destroyed.
+  A is to be destroyed.
+  1
+  B is to be destroyed.
+  A is to be destroyed.
+  ,*/
+
+#+END_SRC
+
+** Template
+#+BEGIN_SRC cpp
+#include <iostream>
+
+
+template <class U, typename V>
+U add(U a, V b){
+  return a+b;
+};
+
+
+template <class T>
+class X{
+
+public:
+  T x, y;
+
+  X(T a, T b)
+    : x(a), y(b)
+  {}
+  
+  T Multiply();
+};
+
+template <class T>
+T X<T>::Multiply(){
+  return this->x * this->y;
+}
+
+// handling template specialization
+template <>
+char X<char>::Multiply(){
+  return this->x;
+}
+
+int main(){
+  
+  std::cout << add(5.4, 9.5) << std::endl;
+  std::cout << add(5, 9.5) << std::endl;
+
+  X<int> x(50, 6);
+  std::cout << x.Multiply() << std::endl;
+  
+  X<float> z(3.5, 6.9);
+  std::cout << z.Multiply() << std::endl;
+  
+  X<char> y('a', 'b');
+  std::cout << y.Multiply() << std::endl;
+  
+}
+
+/*
+Output:
+14.9
+14
+300
+24.15
+a
+*/
+
+#+END_SRC
+
+*** Continuously Recurring Template Pattern 
+#+BEGIN_SRC cpp
+// This is the real base class, preserving the polymorphic structure
+class Base
+{
+};
+
+// This is an intermediate base class to define the static variable
+template<class Derived>
+class BaseX : public Base
+{
+    // The example function in the original question
+    bool foo(int y)
+    { 
+        return x > y;
+    }
+
+    static int x;
+};
+
+class Derived1 : public BaseX<Derived1>
+{
+};
+
+class Derived2 : public BaseX<Derived2>
+{
+};
+#+END_SRC
+
+Now classes ~Derived1~ and ~Derived2~ will each have a ~static int x~ available via the intermediate base class! Also, ~Derived1~ and ~Derived2~ will both share common functionality via the absolute base class ~Base~.
+
+** String
+#+BEGIN_SRC cpp
+  #include <string>
+
+  int main(){
+
+    std::string str1  = "Partha Ghosh"; // initialize string
+    std::string str2("Hello World!"); // initialize string
+    std::string str3;
+
+    str2 = str1; // copy/assign str1 to str2
+    str2.assign(str1); // copy/assign str1 to str2
+    str1.at(2) == str1[2]; // returns true
+    str1.substr(0, 5); // returns 'Parth'
+    str1.find("tha"); // 3
+    str1.rfind("os"); // 9
+    str1.erase(5); // erase from index 5, so str1 becomes 'Parth'
+    str1.replace(1,2, "erj"); // str1 becomes 'Perjth'
+    str1.insert(6, " Ghosh"); // str1 becomes 'Perjth Ghosh'
+    str1.swap(str2); // swap str1 with str2
+  
+  }
+
+#+END_SRC
+
+** Array
+#+BEGIN_SRC cpp
+  int main(){
+    double array[3] = {4,5};
+    array[2] = 2;
+  }
+#+END_SRC
+
+** Vector
+#+BEGIN_SRC cpp
+#include <iostream>
+#include <vector>
+
+void printVector(std::vector<int> &v){
+  // vectors remember their length
+   for (unsigned int i=0; i < v.size(); i++){
+    std::cout << v[i] << " ";
+  }  
+   std::cout << std::endl;
+}
+
+int main(){
+  std::vector<int> arr;
+  std::vector<int> array = {9, 7, 5}; // initialize using initializer list
+  std::vector<int> array2{9, 7, 5, 6}; // uniform initialization
+
+  // When a vector variable goes out of scope, it automatically deallocates the memory it controls. 
+  
+  array[0] = 50; // no bounds checking
+  array.at(2) = 100; // does bounds checking
+  printVector(array);
+  // 50 7 100 
+
+  array = {9,6,9,7,4,0};
+  printVector(array);
+  // 9 6 9 7 4 0
+
+  std::cout << "length: " << array.size() << "  capacity: " << array.capacity() << '\n';
+  // length: 6  capacity: 6
+  array = { 9, 8, 7 }; // okay, array length is now 3!
+  std::cout << "length: " << array.size() << "  capacity: " << array.capacity() << '\n';
+  // length: 3  capacity: 6
+
+  array.push_back(5); // push_back() pushes an element on the stack
+  printVector(array);
+  // 9 8 7 5
+  
+  std::cout << "top: " << array.back() << '\n'; // back() returns the last element
+  // top: 5
+
+  array.pop_back(); // pop_back() pops an element off the stack
+  printVector(array);
+  // 9 8 7 
+  
+  array.resize(10); // computationally expensive for dynamically allocated array
+  printVector(array);
+  // 9 6 9 7 4 0 0 0 0 0
+  
+  std::vector<int> arr2(5); // initialize a vector with 5 elements each with default value of that type
+  printVector(arr2);
+  // 0 0 0 0 0 
+
+  // There is a special implementation for std::vector of type bool that will compact 8 booleans into a byte!
+  // When a vector is resized, the vector may allocate more capacity than is needed.
+}
+
+#+END_SRC
+
+** File Handling
+#+BEGIN_SRC cpp
+  #include <fstream>
+  #include <iostream>
+
+  int main(){
+
+      // writing text to a file
+      std::ofstream file;
+      file.open("test.txt"); // automatically create one if it doesn't exist, std::_S_trunc to overwrite
+      // or ofstream file("test.txt");
+      if (file.is_open()){
+	  file << "This line will get appended to the file.\n";
+	  file.close(); 
+      }
+
+      // reading text from a file
+      std::ifstream ifile("test.txt");
+      if (ifile.is_open()){
+	  while(std::getline(ifile, line)){
+	      std::cout << line << std::endl;
+	  }
+	  ifile.close();
+      }
+  }
+#+END_SRC
+
+** Compiler Flags
+*** std=c++14
+*** pedantic-errors
+    Treat as errors the warnings demanded by strict ISO C++
+*** Wall
+    Enable all common compiler warnings(overrides many other settings)
+*** Weffc++
+    Enable Effective-C++ warnings
+*** Wextra
+    Enable extra compiler warnings
+*** Wsign-conversion
+*** Werror
+*** fPIC
+    Position Independent Code means that the generated machine code is not dependent on being located at a specific address in order to work.
+** Random Numbers
+#+BEGIN_SRC cpp
+  #include <iostream> 
+  #include <cstdlib> // for std::rand() and std::srand()
+  #include <ctime> // for std::time()
+
+  int main(){
+    std::srand(std::time(0));
+    std::rand(); // generates random number between 0 and RAND_MAX
+    RAND_MAX; // returns 32767
+    return 0;
+  }
+#+END_SRC
+
+** Misc
+   + ~constexpr double gravity = 9.8~, compiler performs optimization on compile time constants.
+   + To use ~pi~ defined in a.cpp ~double pi=3.1415~, in main.cpp, first declare
+     it in main.cpp, ~extern double pi~ before using it.
+   + ~enum Types{x=2, y, z}~, So ~z~ or ~Types::z~ is 4.
+
+   + Dynamically allocating variables: ~int *ptr = new int; *ptr = 7;~ or 
+   ~int *ptr{ new int}; *ptr = 7;~ or ~int *ptr{ new int(56)};~ or ~int *ptr{ new int{56}};~
+   + Deleting variables: ~delete ptr;~
+
+   + Dynamically allocating arrays: ~int *array = new int[length]{9,7,5};~
+   + Deleting arrays: ~delete[] array;~
+
+   + Lambda: ~[capture clause](parameters){function body}~
+     Capture clauses:
+     + Capture by value: ~var~
+     + Capture by reference: ~&var~
+     + Capture all by value: ~=~
+     + Capture all by reference: ~&~
+
+** Library
+
+*** Static Library
+    To create a static library, first compile the =.c= files with 
+    ~gcc -c func1.c func2.c~
+    to generate the =.o= files. Then execute 
+    ~ar rs libtest.a func1.o func2.o~.
+    Then create a header file containing the function signatures.
+
+    Now use the library functions in =test.c=. Now compile =test.c=:
+    ~gcc -I path_to_lib -c test.c~
+    Now to create executable use:
+    ~gcc -o test test.o libtest.a~
+    or
+    ~gcc -o test -L path_to_lib test.o -ltest~
+    
+*** Dynamic Library
+    To create a dynamic library, first compile the =.c= files with 
+    ~gcc -fPIC -c func1.c func2.c~
+    to generate the =.o= files. Then execute 
+    ~gcc -shared -o libtest.so func1.o func2.o~.
+    Then create a header file containing the function signatures.
+
+    Now use the library functions in =test.c=. Now compile =test.c=:
+    ~gcc -c test.c~
+    Now to create executable use:
+    ~gcc -o test test.o libtest.so~
+    and move =libtest.so= to =/usr/lib/= and execute ~ldconfig~
+    or add the path to the shared object file to the variable ~LD_LIBRARY_PATH~.
+
+*** Common Libraries
+#+BEGIN_SRC cpp
+#include <math.h>
+#include <iostream>
+#include <memory>
+#include <fstream>
+#include <ostream>
+#include <string>
+#include <algorithm>
+#include <cstdlib>
+#include <random>
+#include <ctime>
+#include <vector>
+#include <array>
+
+#+END_SRC
+
+** Handling MultiType Return 
+#+BEGIN_SRC cpp
+  #include <iostream>
+  #include <memory>
+
+  enum type
+  {    
+      t_null,
+      t_int,
+      t_float,
+  };
+
+  int get(int ix, std::shared_ptr<void> &oy){
+      if (ix==1){ oy = std::make_shared<int>(5); return t_int; }
+      if (ix==2){ oy = std::make_shared<float>(9.9); return t_float; }
+      return t_null;
+  }
+
+
+  int main(){
+      std::shared_ptr<void> s;
+      int t;
+      t = get(1, s);
+    
+      std::shared_ptr<int> i;
+      std::shared_ptr<float> f;
+      i = std::static_pointer_cast<int>(s);
+      f = std::static_pointer_cast<float>(s);
+
+      if (t == t_int){ std::cout << *i << " " << t; }
+      else if (t == t_float){ std::cout << *f << " " << t; }
+
+  }
+
+#+END_SRC
+
+* Git
+  + ~git submodule add https://github.com/glfw/glfw glfw~ -> This allows you to
+    add different repo as a child repo in your repo.
+  + ~git checkout~ -> to clone a new version of that repo
+
+* GLSL
+** Passing Data to Shader
+   vertex shader -> geometry shader -> tessalation shader -> fragment shader
+
+   (layout location=i) in
+   in 
+   out
+   uniform
+
+   uniform are constants i.e. cannot be changed in the shader code
+   
+** Data Types
+   float, vec2, vec3, vec4,
+   int, ivec2, ivec3, ivec4,
+   uint, uvec2, uvec3, uvec4,
+   bool, bvec2, bvec3, bvec4,
+   double, dvec2, dvec3, dvec4,
+   mat2, mat3, mat4, matmxn
+   samber1D, sampler2D, sampler3D
+
+   vector's v component can be used using 
+   - v.x, v.y, v.z, v.w
+   - v.r, v.g, v.b, v.a
+   - v.s, v.t, v.p, v.q
+   - We can also use v.xxy, v.rgb etc. for assigning or retrieving
+
+   matrix m:
+   - m[i] = i-th column of matrix m
+   - m[i][j] = i-th column j-th row
+   - We can use the above two ways to initialize a matrix in shader
+
+** Functions
+   - normalize(v)
+   - texture(sampler, tex_coord) -> returns rgba values according to given sampler
+     and tex_coord
+   - mix(frag_color1, frag_color2, alpha) -> (1-alpha)*frag_color1 + alpha*frag_color2
+   - dot(v1, v2) -> dot product between two vectors
+   - pow(x, n) -> x**n
+   - max(x, y)
+   - min(x, y)
