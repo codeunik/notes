@@ -1164,7 +1164,114 @@ convey any meaningful probabilistic interpretation.
       
       *Papers:* van der Maaten and Hinton., 2008. Visualizing data using t-SNE
 ***** Using Word Embeddings
+      *Transfer Learning and Word Embeddings*
+       1. Learn word embeddings from large text corpus. (1-100B words)
+	  [Or download pre-trained embedding online.]
+       2. Transfer embedding to new task with smaller training set. (say, 100k words)
+       3. Optional: Continue to finetune the word embeddings with new data.
       
+
+       Word embeddings has been useful for name named entity recognition, for
+       text summarization, for co-reference resolution, for parsing. It has been
+       less useful for language modeling, machine translation.
+***** Properties of Word Embeddings
+      *Analogy of Reasoning:* If we were asked Man:Woman::King:?. We will all
+      agree that it is Queen. This can be well captured by word embeddings. With
+      word embedding this problem translate to find a point \(e_{?}\) in the
+      embedding space such that \(e_{\tx{man}}-e_{\tx{woman}}\approx
+      e_{\tx{king}}-e_{?}\) i.e.
+
+      \[\arg\max_{w}d(e_{\tx{man}} - e_{\tx{woman}}, e_{\tx{king}}} - e_{w})\]
+
+      where \(e_{\tx{test}}\) is the embedding vector of the word "test" and
+      \(d\) is some similarity metric, for example cosine similarity
+      i.e. \(d(\v u,\v v)=\q{\v u \. \v v}{\norm{\v u}_{2}\norm{\v v}_{2}}\) or euclidean norm as
+      dissimilarity. In this case if we try to find a word from our vocabulary
+      then, \(e_{\tx{queen}}\) will be the best match.
+      
+      *Paper:* Mikolov et. al., 2013, Linguistic regularities in continuous
+       space word represention
+***** Embedding Matrix
+      When we implement an algorithm to learn word embeddings of size \(m\) of a
+      vocabulary \(V\) of
+      size \(n\), what we end up learning is an embedding matrix \(E_{m\x
+      n}\). Let, \(\v o_{j}\) be the one-hot represention of the word
+      \(V_{j}\). Then embedding for word \(V_{j}\) is \(E\v o_{j}=\v e_{j}\).
+
+      In practice, we don't perform above calculations as it is not efficent,
+      rather we use specialized function to look up an embedding.
+
 **** Learning Word Embeddings: word2vec & GloVe
+***** Learning Word Embeddings
+      *Neural Language Model:* To learn the embedding matrix we can use Neural Language Model. In this
+      deep model using softmax in the final layer we want to predict probability
+      distribution of the vocabulary being the next word given the previous
+      \(t\) words (embedding vectors, these are also parameters) in the
+      sentence.
+
+      *Other Context/Target Pairs:*
+      - /Context:/ last 4 words, /Target:/ next word
+      - /Context:/ 4 words on left and right, /Target:/ middle word
+      - /Context:/ last 1 word, /Target:/ next word
+      - /Context:/ nearby 1 word, /Target:/ target word
+
+      *Paper:* Benigo et. al., 2003, A neural probabilistic language model
+***** Word2Vec
+      *Skip-grams:* In this model we chose a context word randomly from a
+       sentence and a target word in \(\pm 10\) words window from the context
+       word and use these two words to train a NN to learn the word embeddings.
+
+       \(\tx{context word} = \v o_{j}\to E\v o_{j}\to \v e_{j} \to
+       \tx{softmax} \to \v o_{k} = \tx{target word}\)
+       
+       Problem with skip-gram model is that in each iteration we have to compute
+       \[p(t =\tx{target word}|c = \tx{context word}) = \q{e^{\vth_{t}^{T}\v
+       e_{c}}}{\sum_{j=1}^{|V|}}e^{\vth_{j}^{T}\v e_{c}}\]
+       and so for a large vocabulary calculating the denominator will be very
+       expensive. To address this issue we can use *Hierarchial Softmax*.
+
+       In hierarchial softmax model one-hot vector of size \(n\) translate into
+       vector of length \(\ceil{\log_{2} n}\). For example,
+       \[\v o_{1} = [0 0], \v o_{2} = [0 1], \v o_{3} = [1 0], \v o_{4} = [1
+       1].\]
+       
+       ?? In practice, we doesn't use a perfectly balanced tree for hierarchial
+       softmax, rather we put the more feasible outcomes be on top of the tree
+       and more unfeasible outcomes buried much deeper into the tree.
+
+       When sampling context word we dont sample it uniformly, as there are some
+       words like 'the', 'of', 'a', 'and', ... which occur much more often. So
+       we can use our heuristics to come up with a distribution to sample the
+       context words.
+***** Negative Sampling
+      In this model we create the training data as follows: 
+      
+      1. First we chose a context word randomly from a sentence and a target
+         word in \(\pm 10\) words window from the context word, and label it 1
+         as it is a valid context/target pair.
+      2. Next we generate \(k\) negative examples by using the same context word and
+         picking \(k\) random words from the vocabulary and label them as 0.
+
+      Then we train a model in which it take as input the context and target words
+      embeddings and output a \(k+1\) one-hot vector.
+
+      \(k=[2,5]\) for larger data set and \(k=[5,20]\) for a smaller dataset can
+      work well.
+
+      Negative sampling method works much more efficiently than skip-grams model
+      as we don't have compute the denominator term.
+      
+
+      *Paper:* Mikolov et. al., 2013. Distributed representation of words and
+       phrases and their compositionality
+***** GloVe (Global Vectors for Word Representation)
+      Let \(X_{ij} = # \tx{ times }V_{j}\tx{ appears in the context of }V_{i}.\)
+      *Paper:* Pennington et. al., 2014. GloVe: Global vectors for word representation
 **** Applications using Word Embeddings
+***** Sentiment Classification
+***** Debiasing word embeddings
+      *Paper:* Bolukbasi et. al., 2016. Man is to computer programmer as woman
+       is to homemaker? Debiasing word embeddings
 *** Sequence Models & Attention Mechanism
+**** Various Sequence to Sequence Architechtures
+**** Speech Recognition Audio Data
