@@ -1269,9 +1269,216 @@ convey any meaningful probabilistic interpretation.
       *Paper:* Pennington et. al., 2014. GloVe: Global vectors for word representation
 **** Applications using Word Embeddings
 ***** Sentiment Classification
+      Here input is a piece of comment and we have to predict it's sentiment sch
+      as star rating.
+
+      *Using Softmax Classfier:*
+      One way to build a sentiment classfier is that, we train a softmax
+      classifer in which input is the average of all the embedding vectors
+      corresponding to the words in the comment and otput is its star
+      rating. One downside of this approach is that it does not consider the
+      ordering of the words, and thus can output incorrect star rating.
+
+      *Using RNN:*
+      Using a RNN for sentiment classification is better. Here we can use
+      Many-to-one RNN architecture and inputs as embedding vectors and we use a
+      softmax classfier in the end to predict it's sentiment.
+
 ***** Debiasing word embeddings
+      Word embeddings can reflect gender, ethnicity, age, sexual orientation,
+      and other biases of the text used to train the model.
+
+      *Addressing bias in word embeddings:*
+      1. Identify bias directions for gender, ethnicity etc. using SVD.
+      2. /Neutralize:/ For every word that is not biased by definition, project
+         them on the the subspace perpendicular to the bias directions.
+      3. Make the biased words by definition, same distance apart from the
+         unbiased words.
+
       *Paper:* Bolukbasi et. al., 2016. Man is to computer programmer as woman
        is to homemaker? Debiasing word embeddings
 *** Sequence Models & Attention Mechanism
 **** Various Sequence to Sequence Architechtures
+***** Basic Models
+      *Machine Translation:*
+      Sequence to sequence model = Many-to-many RNN architecture can be used for
+      machine translation as described above.
+
+      *Image Captioning:*
+      Use a alexnet to get generate an image encoding an feed it to a decoder RNN
+      network to generate captions for the image.
+
+      *Papers:*
+      1. Sutskever et. al., 2014. Sequence to sequence learning with neural
+         networks
+      2. Cho et. al., 2014. Learning phrases representations using RNN
+         encoder-decoder for statistical machine translation
+      3. Mao et. al., 2014. Deep captioning with multimodal recurrent neural network
+      4. Vinyals et. al., 2014. Show and tell: Neural image caption generator
+      5. Karpathy and Fei Fei Li, 2015. Deep visual-semantic alignments for
+         generating image descriptions
+***** Picking the most likely sentence
+      [[./img/machine_translation.png]]
+      We can think of Machine Translation as building a conditional language
+      model. Since here we are trying to find \(P(\h {\v y}^{\ip{1}},\ldots,\h
+      {\v y}^{\ip{T_{y}}}|\v x^{\ip{1}},\ldots,\v x^{\ip{T_{x}}})\). But as a
+      final output we don't want to pick a random sentence from the distribution
+      rather we want to pick the sentence for which aforementioned probability
+      is maximized i.e. \[\arg\max_{\h {\v y}^{\ip{1}},\ldots,\h
+      {\v y}^{\ip{T_{y}}}}P(\h {\v y}^{\ip{1}},\ldots,\h
+      {\v y}^{\ip{T_{y}}}|\v x^{\ip{1}},\ldots,\v x^{\ip{T_{x}}}).\]
+      Though it's not practical to solve for the above problem, in reality we
+      use an approximate search algorithm called /beam search/ to get a sentence with good
+      probability.
+
+      We don't use greedy search for finding the translated sentence since, it's
+      not always optimal.
+      \[\under{\arg\max}{\h {\v y}^{\ip{1}},\ldots,\h
+      {\v y}^{\ip{T_{y}}}}P(\h {\v y}^{\ip{1}},\ldots,\h
+      {\v y}^{\ip{T_{y}}}|\v x^{\ip{1}},\ldots,\v x^{\ip{T_{x}}})\over{\ne}{?}
+      \prod_{i=1}^{T_{y}'}\arg\max_{\h {\v y}^{\ip{i}}}P(\h {\v y}^{\ip{i}}|\v
+      x^{\ip{1}},\ldots,\v x^{\ip{T_{x}}}, \v y^{\ip{1}},\ldots,\v y^{\ip{i-1}},\v y^{\ip{i}},\ldots,\v y^{\ip{T_{y}'}})\]
+***** Beam Search
+      Let \(n\) be the beam size that is we only store \(n\) sentence
+      fragments through out the running time of the algorithm.
+
+      In beam search in the i-th step we chose \(n\) most probable words from distribution \(P(\h {\v
+      y}^{\ip{i}}|\v x^{\ip{1}},\ldots,\v x^{\ip{T_{x}}}, \h {\v y}^{\ip{1}},
+      \ldots, \h {\v y}^{\ip{i-1}})\), so that P(\h {\v y}^{\ip{1}},\ldots,\h
+      {\v y}^{\ip{i}}|\v x^{\ip{1}},\ldots,\v x^{\ip{T_{x}}}) is maximized, to be
+      the i-th word of the translated sentence and generate \(n\) sentence
+      fragments with good probability and discard others. At last, if some of
+      the sentences generate <EOS> token, then we pick the sentence with largest
+      probability as our final output. Note that,
+      \[P(\h {\v y}^{\ip{1}},\ldots,\h
+      {\v y}^{\ip{i}}|\v x^{\ip{1}},\ldots,\v x^{\ip{T_{x}}}) = P(\h {\v
+      y}^{\ip{1}}|\v x^{\ip{1}},\ldots,\v x^{\ip{T_{x}}})\cdots P(\h {\v
+      y}^{\ip{i}}|\v x^{\ip{1}},\ldots,\v x^{\ip{T_{x}}}, \h {\v y}^{\ip{1}},
+      \ldots, \h {\v y}^{\ip{i-1}}).\]
+
+      For beam size of 1, the algorithm becomes greedy search.
+      Beam width of 10 is pretty reasonable for various applications. Also if we
+      set beam width to be very large(\(\sim 1000\)) then often there is a
+      diminishing return.
+
+      For implementation purposes,
+      instead of directly calculating the products of the probabilities since
+      that will result in a numerical underflow,  we use sum of log of the
+      probabilities:
+      \begin{align*}
+      &\under{\arg\max}{\h {\v y}^{\ip{1}},\ldots,\h
+      {\v y}^{\ip{T_{y}}}}P(\h {\v y}^{\ip{1}},\ldots,\h
+      {\v y}^{\ip{T_{y}}}|\v x^{\ip{1}},\ldots,\v x^{\ip{T_{x}}})\\
+      =& \under{\arg\max}{\h {\v y}^{\ip{1}},\ldots,\h
+      {\v y}^{\ip{T_{y}}}}\log P(\h {\v y}^{\ip{1}},\ldots,\h
+      {\v y}^{\ip{T_{y}}}|\v x^{\ip{1}},\ldots,\v x^{\ip{T_{x}}})\\
+      =& \under{\arg\max}{\h {\v y}^{\ip{1}},\ldots,\h
+      {\v y}^{\ip{T_{y}}}}\sum_{i=1}^{T_{y}}\log P(\h {\v y}^{\ip{i}}|\v
+      x^{\ip{1}},\ldots,\v x^{\ip{T_{x}}}, \v y^{\ip{1}},\ldots,\v
+      y^{\ip{i-1}},\v y^{\ip{i}},\ldots,\v y^{\ip{T_{y}}})
+      \end{align*}
+
+      *Length Normalization:*
+      Also, this algorithm has a disadvantage that it prefers shorter sentences
+      since for longer sentences the probability almost always be less. To solve
+      this we normalize the probability by total number of words or by some
+      power of it i.e. 
+      \[\under{\arg\max}{\h {\v y}^{\ip{1}},\ldots,\h
+      {\v y}^{\ip{T_{y}}}}\q1_{T_{y}^{\a}}\sum_{i=1}^{T_{y}}\log P(\h {\v y}^{\ip{i}}|\v
+      x^{\ip{1}},\ldots,\v x^{\ip{T_{x}}}, \v y^{\ip{1}},\ldots,\v
+      y^{\ip{i-1}},\v y^{\ip{i}},\ldots,\v y^{\ip{T_{y}}})
+      \]
+      where \(\a\) can be \(0.7\).
+***** Error Analysis in Beam Search
+      To determine whether if you have to improve your RNN model or you have to
+      increase the beam width, we first take any sentence \(x\) and lets say
+      \(y^{*}\) be it's human translation and \(\h y\) be the machine
+      translation. Now we determine \(P(y^{*}|x)\) and \(P(\h y|x)\) from the
+      RNN model.
+
+      - *Case 1:* If \(P(y^{*}|x) > P(\h y|x)\) then we have to increase the
+        beam width.
+      - *Case 2:* If \(P(y^{*}|x) < P(\h y|x)\) then we have to collect more
+        data to improve the RNN model.
+
+      We have to do this with some examples in the dev set to determine what
+      percentages fall under case 1 and case 2 and determine accordingly whether
+      to improve the RNN or increase the beam width.
+
+      We can also take length normalization into account to determine this.
+***** Bleu(Bilingual Evaluation Understudy) Score
+      For a given sentence there may be multiple translation that are equally
+      good, so how can we select one for final output is done by evaluating the
+      Bleu scores. 
+
+      Let \(x\) be the given sentence and \(y_{1}^{*}, \ldots,
+      y_{k}^{*}\) be some human generated translation and \(\h y\) be the
+      machine translation. To measure how good the machine translation is we
+      measure the ratio of the occurances of the \(n\)-grams in the machine
+      translation i.e.
+      \[p_{n} = \q{\sum_{n\tx{-gram}\in \h y}\max\set{#n\tx{-gram}\in
+      y_{i}^{*}}_{i=1}^{k}}{\sum_{n\tx{-gram}\in \h y}#n\tx{-gram}\in \h y}\]
+      where \(n\)-gram means \(n\)-consecutive words.
+
+      If machine translation matches with one of the human translation then
+      \(p_{1}\.p_{2}\.\cdots = 1\).
+
+      Comined Bleu score: \(BP \exp\inp{\q14\sum_{i=1}^{4}p_{n}}\) where BP is
+      brevity penalty which penalizes translation systems that output
+      translations that are too short and it is given by
+      \[BP = \case{
+1&\tx{if machine translation length > human translation length}\\
+\exp\inp{1-\q{\tx{human translation length}}{\tx{machine translation length}}}&\tx{otherwise}
+}\]
+
+      *Paper:* Papineni et. al., 2002. Bleu: A method for automatic evaluation
+       of machine translation
+***** Attention Model
+      If the input sentence is too long then it is difficult for the encoder RNN
+      to encode all the information and decoder to decode it and produce the
+      translation. And so as the sentence become larger blue score decreases. To
+      solve this problem we use attention model which give attention to part of
+      the input sentence while translating.
+      
+      [[./img/attention-model-1.png]]
+      [[./img/attention-model-2.png]]
+
+      *Papers:* 
+      1. Bahdanau et. al., 2014. Neural machine translation by jointly learning to align and translate
+      2. Xu et. al., 2015. Show attention and tell: neural image caption
+         generation with visual attention
 **** Speech Recognition Audio Data
+***** Speech Recognition
+      audio clip \(\to\) spectrogram features(x) \(\to\) transcript(y)
+     
+      In academia/commercial applications of speech recognition 300 hrs/3000 hrs/100,000
+      hrs of audio data are used in train the models.
+
+      We can use the attention model and CTC (Connectionist Temporal
+      Classification) cost function for speech recognition.
+     
+      If our input audio is of 10 seconds and audio frequency is 100hz then we
+      can use 1000 timestamps in our attention model(This is a many-to-many(same)
+      model). 
+     
+      If our input audio is the sentence "the quick brown fox jumps over the lazy
+      dog", the output of our speech recognition model can be 
+
+      ttt_h_eee____<SPC><SPC>____qqquuuu____iiiiiiii__cccc........
+
+      Basic rule for the CTC cost function is to collapse characters not
+      separated by '_'("blank").
+
+      *Papers:*
+      1. Graves et. al., 2006. Connectionist Temporal Classification: Labeling
+         unsegmented sequence data with recurrent neural networks
+***** Trigger Word Detection System
+      In this case given a input audio, we first compute some spectrogram
+      features of the audio(x), then generate sequence of 0-1s. Until the
+      trigger word is not said completely we put 0s and just the moment it is
+      said for some timestamps we put some 1s and then revert back outputting
+      0s. This is how we generate y.
+
+      We put several 1s instead of just once, because it slightly evens out the
+      ratio of 1s and 0s, make it easier for model to train.
+      
